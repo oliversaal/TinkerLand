@@ -58,8 +58,6 @@ public class MainActivity extends AppCompatActivity implements
     protected TextView mLatitudeText;
     protected TextView mLongitudeText;
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
