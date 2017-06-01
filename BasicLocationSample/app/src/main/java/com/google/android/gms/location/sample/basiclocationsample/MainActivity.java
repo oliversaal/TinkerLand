@@ -107,9 +107,9 @@ public class MainActivity extends AppCompatActivity implements
         // in rare cases when a location is not available.
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            mLatitudeText.setText(String.format("%s is %f", mLatitudeLabel,
+            mLatitudeText.setText(String.format("%s: %f", mLatitudeLabel,
                     mLastLocation.getLatitude()));
-            mLongitudeText.setText(String.format("%s is %f", mLongitudeLabel,
+            mLongitudeText.setText(String.format("%s: %f", mLongitudeLabel,
                     mLastLocation.getLongitude()));
         } else {
             Toast.makeText(this, R.string.no_location_detected, Toast.LENGTH_LONG).show();
