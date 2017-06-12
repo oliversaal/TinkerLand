@@ -18,7 +18,6 @@
     <string name="app_name">Where in the world is ...</string>
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>
-    <string name="last_update_time_text">Last Update Time</string>
 
     <string name="no_location_detected">
         No location detected. Make sure location is enabled on the device.

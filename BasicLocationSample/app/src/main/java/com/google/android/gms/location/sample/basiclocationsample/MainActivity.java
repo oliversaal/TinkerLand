@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -38,6 +39,8 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
+
 /**
  * Location sample.
  *
@@ -47,8 +50,7 @@ import java.util.Date;
  * also using APIs that need authentication.
  */
 public class MainActivity extends AppCompatActivity implements
-        ConnectionCallbacks, OnConnectionFailedListener {
-
+        ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
     protected static final String TAG = "MainActivity";
 
     /**
@@ -82,18 +84,17 @@ public class MainActivity extends AppCompatActivity implements
      * Stores the types of location services the client is interested in using. Used for checking
      * settings to determine if the device has optimal location settings.
      */
-
     protected LocationSettingsRequest mLocationSettingsRequest;
 
-    //Labels.
+    // Labels
     protected String mLatitudeLabel;
     protected String mLongitudeLabel;
     protected String mLastUpdateTimeLabel;
 
+    // TextViews
     protected TextView mLatitudeText;
     protected TextView mLongitudeText;
     protected TextView mLastUpdateTimeText;
-
 
     /**
      * Location settings result variables
@@ -122,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements
         buildGoogleApiClient();
         createLocationRequest();
         buildLocationSettingsRequest();
-
     }
 
     /**
@@ -143,15 +143,18 @@ public class MainActivity extends AppCompatActivity implements
      *These settings are defined by the LocationRequest data object.
      */
     protected void createLocationRequest() {
-
         mLocationRequest = new LocationRequest();
+
         //This method sets the rate in milliseconds at which your app prefers to receive location updates
         mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+
         //This method sets the fastest rate in milliseconds at which your app can handle location updates.
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+
         //This method sets the priority of the request, which hints to the Google Play services to use GPS.
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
+
     /**
     * Uses LocationSettingsRequest.Builder to build a LocationSettingsRequest that is used for
     *checking if a device has the needed location settings.
@@ -171,21 +174,21 @@ public class MainActivity extends AppCompatActivity implements
         LocationServices.SettingsApi.checkLocationSettings(
                 mGoogleApiClient,
                 mLocationSettingsRequest
-        ).setResultCallback(new ResultCallback <LocationSettingsResult>()) {
+        ).setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
             public void onResult(LocationSettingsResult result) {
                 status = result.getStatus();
                 settingStates = result.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        //info message -log file
+                        // info message -log file
                         Log.i(TAG, "All location settings are satisfied. Get current location");
                         // initialize GPS location requests.
-                        mCurrentLocation = LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
+                        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        //info message -log file
+                        // info message -log file
                         Log.i(TAG, "Location settings not satisfied. get last location");
                         // initialize approximate location request
                         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -196,32 +199,30 @@ public class MainActivity extends AppCompatActivity implements
                         // Location settings are not satisfied. However, we have no way to fix this
                         String errorMessage = "Location settings are inadequate, and cannot be " +
                                 "fixed here. Fix in Settings.";
-                        //error message -log file
+                        // error message -log file
                         Log.e(TAG, errorMessage);
                         Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
                 updateLocationUI();
             }
         });
-
     }
 
     private void updateLocationUI() {
         if (mCurrentLocation != null) {
-            mLatitudeText.setText(String.format("Current %s: %f", mLatitudeLabel,
+            mLatitudeText.setText(String.format(Locale.getDefault(), "Current %s: %f", mLatitudeLabel,
                     mCurrentLocation.getLatitude()));
-            mLongitudeText.setText(String.format("Current %s: %f", mLongitudeLabel,
+            mLongitudeText.setText(String.format(Locale.getDefault(), "Current %s: %f", mLongitudeLabel,
                     mCurrentLocation.getLongitude()));
             mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
                     mLastUpdateTime));
         } else{
-            mLatitudeText.setText(String.format("Last known %s: %f", mLatitudeLabel,
+            mLatitudeText.setText(String.format(Locale.getDefault(), "Last known %s: %f", mLatitudeLabel,
                     mLastLocation.getLatitude()));
-            mLongitudeText.setText(String.format("Last known %s: %f", mLongitudeLabel,
+            mLongitudeText.setText(String.format(Locale.getDefault(), "Last known %s: %f", mLongitudeLabel,
                     mLastLocation.getLongitude()));
-            mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
+            mLastUpdateTimeText.setText(String.format(Locale.getDefault(), "%s: %s", mLastUpdateTimeLabel,
                     mLastUpdateTime));
-
         }
     }
 
@@ -267,7 +268,6 @@ public class MainActivity extends AppCompatActivity implements
         // onConnectionFailed.
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
-
 
     @Override
     public void onConnectionSuspended(int cause) {
