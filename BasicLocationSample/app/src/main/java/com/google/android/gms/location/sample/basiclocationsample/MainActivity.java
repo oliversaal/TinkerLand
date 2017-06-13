@@ -16,6 +16,7 @@
 
 package com.google.android.gms.location.sample.basiclocationsample;
 
+import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -54,6 +55,11 @@ public class MainActivity extends AppCompatActivity implements
     protected static final String TAG = "MainActivity";
 
     /**
+     * Constant used in the location settings dialog.
+     */
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+
+    /**
      * Provides the entry point to Google Play services.
      */
     protected GoogleApiClient mGoogleApiClient;
@@ -70,12 +76,9 @@ public class MainActivity extends AppCompatActivity implements
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 5; //1 second
 
-    // Keys for storing activity state in the Bundle.
-    protected final static String KEY_LAST_UPDATED_TIME_STRING = "last-updated-time-string";
     /**
      * Represents a geographical location.
      */
-    protected Location mLastLocation;
     protected Location mCurrentLocation;
 
     protected LocationRequest mLocationRequest;
@@ -112,8 +115,10 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
+        // Set labels.
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
         mLongitudeLabel = getResources().getString(R.string.longitude_label);
+        mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
         mLatitudeText = (TextView) findViewById((R.id.latitude_text));
         mLongitudeText = (TextView) findViewById((R.id.longitude_text));
         mLastUpdateTimeText = (TextView) findViewById(R.id.last_update_time_text);
@@ -129,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
      */
     protected synchronized void buildGoogleApiClient() {
-        //info message - log file
+        // Info message - log file
         Log.i(TAG, "Building GoogleApiClient");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -181,28 +186,32 @@ public class MainActivity extends AppCompatActivity implements
                 settingStates = result.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        // info message -log file
+                        // Info message -log file
                         Log.i(TAG, "All location settings are satisfied. Get current location");
 
-                        // initialize GPS location requests.
+                        // Initialize GPS location requests.
                         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // info message -log file
+                        // Info message -log file
                         Log.i(TAG, "Location settings not satisfied. get last location");
 
-                        // initialize approximate location request
-                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-
+                        // Prompt user to adjust device settings
+                        try {
+                            status.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
+                        }
+                        catch(IntentSender.SendIntentException e){
+                            Log.i(TAG, "PendingIntent unable to execute request. Resolution required");
+                        }
                         break;
+
                     case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                         // Location settings are not satisfied. However, we have no way to fix this
                         String errorMessage = "Location settings are inadequate, and cannot be " +
                                 "fixed here. Fix in Settings.";
 
-                        // error message -log file
+                        // Error message -log file
                         Log.e(TAG, errorMessage);
                         Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
@@ -220,13 +229,6 @@ public class MainActivity extends AppCompatActivity implements
                     mCurrentLocation.getLongitude()));
             mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
                     mLastUpdateTime));
-        } else{
-            //mLatitudeText.setText(String.format(Locale.getDefault(), "Last known %s: %f", mLatitudeLabel,
-                    //mLastLocation.getLatitude()));
-            //mLongitudeText.setText(String.format(Locale.getDefault(), "Last known %s: %f", mLongitudeLabel,
-                    //mLastLocation.getLongitude()));
-            //mLastUpdateTimeText.setText(String.format(Locale.getDefault(), "%s: %s", mLastUpdateTimeLabel,
-                    //mLastUpdateTime));
         }
     }
 
@@ -249,10 +251,10 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onConnected(Bundle connectionHint) {
-        //info message - log file
+        // Info message - log file
         Log.i(TAG, "in onConnected(), starting location updates");
 
-        //initialize location updates
+        // Initialize location updates
         startLocationUpdates();
     }
 
@@ -276,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason. We call connect() to
-        // attempt to re-establish the connection.
+        // Attempt to re-establish the connection.
         Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
     }
