@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Location settings result variables
      */
-    protected Status status;
-    protected LocationSettingsStates settingStates;
+    protected Status mstatus;
+    protected LocationSettingsStates mSettingStates;
 
     /**
      * Time when the location was updated represented as a String.
@@ -182,11 +182,11 @@ public class MainActivity extends AppCompatActivity implements
         ).setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
             public void onResult(LocationSettingsResult result) {
-                status = result.getStatus();
-                settingStates = result.getLocationSettingsStates();
-                switch (status.getStatusCode()) {
+                mstatus = result.getStatus();
+                mSettingStates = result.getLocationSettingsStates();
+                switch (mstatus.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        // Info message -log file
+                        // Info message - log file
                         Log.i(TAG, "All location settings are satisfied. Get current location");
 
                         // Initialize GPS location requests.
@@ -194,14 +194,13 @@ public class MainActivity extends AppCompatActivity implements
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Info message -log file
+                        // Info message - log file
                         Log.i(TAG, "Location settings not satisfied. get last location");
 
                         // Prompt user to adjust device settings
                         try {
-                            status.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
-                        }
-                        catch(IntentSender.SendIntentException e){
+                            mstatus.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
+                        }catch(IntentSender.SendIntentException e){
                             Log.i(TAG, "PendingIntent unable to execute request. Resolution required");
                         }
                         break;
@@ -211,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements
                         String errorMessage = "Location settings are inadequate, and cannot be " +
                                 "fixed here. Fix in Settings.";
 
-                        // Error message -log file
+                        // Error message - log file
                         Log.e(TAG, errorMessage);
                         Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
