@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements
                         // Prompt user to adjust device settings
                         try {
                             mstatus.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
-                        }catch(IntentSender.SendIntentException e){
+                        } catch(IntentSender.SendIntentException e) {
                             Log.i(TAG, "PendingIntent unable to execute request. Resolution required");
                         }
                         break;
