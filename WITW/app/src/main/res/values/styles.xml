@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.WITW" parent="Theme.AppCompat.Light">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+    <style name="Theme.Base" parent="Theme.AppCompat.Light">
+    </style>
+</resources>
