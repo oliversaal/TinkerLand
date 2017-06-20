@@ -38,6 +38,9 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -51,7 +54,11 @@ import java.util.Locale;
  * also using APIs that need authentication.
  */
 public class MainActivity extends AppCompatActivity implements
-        ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
+        ConnectionCallbacks,
+        OnConnectionFailedListener,
+        LocationListener,
+        OnMapReadyCallback
+{
     protected static final String TAG = "MainActivity";
 
     /**
@@ -105,6 +112,13 @@ public class MainActivity extends AppCompatActivity implements
     protected Status mstatus;
     protected LocationSettingsStates mSettingStates;
 
+    protected SupportMapFragment mMapFragment;
+
+    /**
+     * The persisted GoogleMap object
+     */
+    protected GoogleMap mGoogleMap;
+
     /**
      * Time when the location was updated represented as a String.
      */
@@ -116,6 +130,12 @@ public class MainActivity extends AppCompatActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        // Get the GoogleMap object
+        mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        if (mMapFragment != null) {
+            mMapFragment.getMapAsync(MainActivity.this);
+        }
 
         // Set labels.
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
@@ -230,8 +250,16 @@ public class MainActivity extends AppCompatActivity implements
                     mCurrentLocation.getLongitude()));
             mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
                     mLastUpdateTime));
+
+            /*
+            if (mGoogleMap != null) {
+                LatLng newPoint = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPoint));
+            }
+            */
         }
-    }
+
+     }
 
     @Override
     protected void onStart() {
@@ -282,5 +310,14 @@ public class MainActivity extends AppCompatActivity implements
         // Attempt to re-establish the connection.
         Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        // Retain the GoogleMap object since we've using it with new coordinates
+        if (mGoogleMap == null) {
+            mGoogleMap = map;
+            mGoogleMap.setMyLocationEnabled(true);
+        }
     }
 }
