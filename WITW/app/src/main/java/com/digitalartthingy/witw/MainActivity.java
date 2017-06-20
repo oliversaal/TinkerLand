@@ -251,14 +251,13 @@ public class MainActivity extends AppCompatActivity implements
             mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
                     mLastUpdateTime));
 
-            /*
+            // Update the GoogleMap visuals with your current location - note there is no marker unless
+            // we use the setMyLocationEnabled(true) API or place a custom marker
             if (mGoogleMap != null) {
                 LatLng newPoint = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPoint));
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newPoint, 18));
             }
-            */
         }
-
      }
 
     @Override
@@ -317,7 +316,6 @@ public class MainActivity extends AppCompatActivity implements
         // Retain the GoogleMap object since we've using it with new coordinates
         if (mGoogleMap == null) {
             mGoogleMap = map;
-            mGoogleMap.setMyLocationEnabled(true);
         }
     }
 }
