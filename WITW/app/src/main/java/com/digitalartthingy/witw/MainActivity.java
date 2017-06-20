@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gms.location.sample.basiclocationsample;
+package com.digitalartthingy.witw;
 
 import android.content.IntentSender;
 import android.location.Location;
@@ -112,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.Theme_Base);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 

@@ -5,7 +5,7 @@ android {
     buildToolsVersion '25.0.0'
 
     defaultConfig {
-        applicationId "com.google.android.gms.location.sample.basiclocationsample"
+        applicationId "com.digitalartthingy.witw"
         minSdkVersion 9
         targetSdkVersion 22
         versionCode 1
