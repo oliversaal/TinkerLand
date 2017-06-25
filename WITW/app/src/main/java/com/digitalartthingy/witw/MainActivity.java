@@ -21,6 +21,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,6 +85,12 @@ public class MainActivity extends AppCompatActivity implements
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 5; //1 second
 
+    // Keys for storing activity state in the Bundle.
+    protected final static String KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates";
+    protected final static String KEY_LOCATION = "location";
+    protected final static String KEY_LAST_UPDATED_TIME_STRING = "last-updated-time-string";
+
+
     /**
      * Represents a geographical location.
      */
@@ -106,18 +114,29 @@ public class MainActivity extends AppCompatActivity implements
     protected TextView mLongitudeText;
     protected TextView mLastUpdateTimeText;
 
+    //UI Widgets
+    protected Button mStartUpdatesButton;
+    protected Button mStopUpdatesButton;
+
     /**
      * Location settings result variables
      */
     protected Status mstatus;
     protected LocationSettingsStates mSettingStates;
-
+    protected Boolean mRequestingLocationUpdates;
     protected SupportMapFragment mMapFragment;
 
     /**
      * The persisted GoogleMap object
      */
     protected GoogleMap mGoogleMap;
+
+    //Lat long variables
+    protected LatLng newPoint;
+    protected LatLng markerLatLng;
+
+    //Map markers
+    protected MarkerOptions mMarker;
 
     /**
      * Time when the location was updated represented as a String.
@@ -141,15 +160,53 @@ public class MainActivity extends AppCompatActivity implements
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
         mLongitudeLabel = getResources().getString(R.string.longitude_label);
         mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
+        mStartUpdatesButton = (Button) findViewById(R.id.start_updates_button);
+        mStopUpdatesButton = (Button) findViewById(R.id.stop_updates_button);
         mLatitudeText = (TextView) findViewById((R.id.latitude_text));
         mLongitudeText = (TextView) findViewById((R.id.longitude_text));
         mLastUpdateTimeText = (TextView) findViewById(R.id.last_update_time_text);
+
+        mRequestingLocationUpdates = false;
+        mLastUpdateTime = "";
+
+        // Update values using data stored in the Bundle.
+        updateValuesFromBundle(savedInstanceState);
 
         // Kick off the process of building the GoogleApiClient, LocationRequest, and
         // LocationSettingsRequest objects.
         buildGoogleApiClient();
         createLocationRequest();
         buildLocationSettingsRequest();
+    }
+
+    /**
+     * Updates fields based on data stored in the bundle.
+     *
+     * @param savedInstanceState The activity state saved in the Bundle.
+     */
+    private void updateValuesFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            // Update the value of mRequestingLocationUpdates from the Bundle, and make sure that
+            // the Start Updates and Stop Updates buttons are correctly enabled or disabled.
+            if (savedInstanceState.keySet().contains(KEY_REQUESTING_LOCATION_UPDATES)) {
+                mRequestingLocationUpdates = savedInstanceState.getBoolean(
+                        KEY_REQUESTING_LOCATION_UPDATES);
+            }
+
+            // Update the value of mCurrentLocation from the Bundle and update the UI to show the
+            // correct latitude and longitude.
+            if (savedInstanceState.keySet().contains(KEY_LOCATION)) {
+                // Since KEY_LOCATION was found in the Bundle, we can be sure that mCurrentLocation
+                // is not null.
+                mCurrentLocation = savedInstanceState.getParcelable(KEY_LOCATION);
+            }
+
+            // Update the value of mLastUpdateTime from the Bundle and update the UI.
+            if (savedInstanceState.keySet().contains(KEY_LAST_UPDATED_TIME_STRING)) {
+                mLastUpdateTime = savedInstanceState.getString(KEY_LAST_UPDATED_TIME_STRING);
+            }
+            updateUI();
+        }
     }
 
     /**
@@ -190,6 +247,47 @@ public class MainActivity extends AppCompatActivity implements
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
+    }
+
+    /**
+     * Handles the Start Updates button and requests start of location updates. Does nothing if
+     * updates have already been requested.
+     */
+    public void startUpdatesButtonHandler(View view) {
+        if (!mRequestingLocationUpdates) {
+            mRequestingLocationUpdates = true;
+            setButtonsEnabledState();
+            startLocationUpdates();
+            placeMarker();
+        }
+    }
+
+    public void placeMarker(){
+        if (mCurrentLocation == null) {
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+            updateLocationUI();
+        }
+
+        if (mCurrentLocation != null & mGoogleMap != null ) {
+            markerLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+
+            mMarker = new MarkerOptions();
+
+            mMarker.position(markerLatLng);
+            mMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker));
+            mGoogleMap.addMarker(mMarker);
+        }
+    }
+    /**
+     * Handles the Stop Updates button, and requests removal of location updates.
+     */
+    public void stopUpdatesButtonHandler(View view) {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        placeMarker();
+        stopLocationUpdates();
     }
 
     /**
@@ -237,9 +335,31 @@ public class MainActivity extends AppCompatActivity implements
                         Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
 
-                updateLocationUI();
+                updateUI();
             }
         });
+    }
+
+    /**
+     * Updates all UI fields.
+     */
+    private void updateUI() {
+        setButtonsEnabledState();
+        updateLocationUI();
+    }
+
+    /**
+     * The Start Updates button is enabled if the user is not requesting location updates.
+     * The Stop Updates button is enabled if the user is requesting location updates.
+     */
+    private void setButtonsEnabledState() {
+        if (mRequestingLocationUpdates) {
+            mStartUpdatesButton.setEnabled(false);
+            mStopUpdatesButton.setEnabled(true);
+        } else {
+            mStartUpdatesButton.setEnabled(true);
+            mStopUpdatesButton.setEnabled(false);
+        }
     }
 
     private void updateLocationUI() {
@@ -256,7 +376,8 @@ public class MainActivity extends AppCompatActivity implements
             if (mGoogleMap != null) {
                 LatLng newPoint = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newPoint, 18));
-            }
+                mGoogleMap.setMyLocationEnabled(true);
+                }
         }
      }
 
@@ -283,7 +404,39 @@ public class MainActivity extends AppCompatActivity implements
         Log.i(TAG, "in onConnected(), starting location updates");
 
         // Initialize location updates
-        startLocationUpdates();
+        if (mRequestingLocationUpdates) {
+            Log.i(TAG, "in onConnected(), starting location updates");
+            startLocationUpdates();
+        }
+    }
+
+    /**
+     * Stores activity data in the Bundle.
+     */
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(KEY_REQUESTING_LOCATION_UPDATES, mRequestingLocationUpdates);
+        savedInstanceState.putParcelable(KEY_LOCATION, mCurrentLocation);
+        savedInstanceState.putString(KEY_LAST_UPDATED_TIME_STRING, mLastUpdateTime);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    protected void stopLocationUpdates() {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient,
+                this
+        ).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(Status status) {
+                mRequestingLocationUpdates = false;
+                setButtonsEnabledState();
+            }
+        });
     }
 
     /**
