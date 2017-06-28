@@ -134,8 +134,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        Toolbar myToolbar = (Toolbar)findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
+        Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
+        setSupportActionBar(mainToolbar);
 
         // Get the GoogleMap object
         mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
@@ -159,11 +159,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     *Inflates the menu. This adds items to the action bar if it is present
+     * Inflates the menu. This adds items to the action bar if it is present
      **/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
         return true;

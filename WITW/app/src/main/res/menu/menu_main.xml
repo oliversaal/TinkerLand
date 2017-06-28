@@ -13,6 +13,4 @@
         android:orderInCategory="101"
         android:title="@string/action_debug"
         app:showAsAction="never" />
-
-
 </menu>
