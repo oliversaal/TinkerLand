@@ -20,7 +20,10 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -131,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
+        Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
+        setSupportActionBar(mainToolbar);
+
         // Get the GoogleMap object
         mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         if (mMapFragment != null) {
@@ -150,6 +156,16 @@ public class MainActivity extends AppCompatActivity implements
         buildGoogleApiClient();
         createLocationRequest();
         buildLocationSettingsRequest();
+    }
+
+    /**
+     * Inflates the menu. This adds items to the action bar if it is present
+     **/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     /**
