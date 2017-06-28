@@ -21,8 +21,6 @@
     <string name="last_update_time_label">Last location update time</string>
     <string name="action_map">Map</string>
     <string name="action_debug">Debug</string>
-
-
     <string name="no_location_detected">
         No location detected. Make sure location is enabled on the device.
     </string>
