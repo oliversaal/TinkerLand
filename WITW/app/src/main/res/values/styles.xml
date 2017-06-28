@@ -2,6 +2,8 @@
     <style name="Theme.WITW" parent="Theme.AppCompat.Light">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
-    <style name="Theme.Base" parent="Theme.AppCompat.Light">
+    // This deactivates Android native toolbar. We want the most recent features that are added to
+    // Support library's version of the toolbar.
+    <style name="Theme.Base" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
 </resources>
