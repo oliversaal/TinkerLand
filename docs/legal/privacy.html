@@ -83,17 +83,17 @@ THE SOFTWARE.-->
 <script>
     $(function () {
         loadConfiguration().then(
-			function () {
-				// Add listener on the individual items to expand/collapse the item details.
-				$(".contentItem").on("click.toggleExpandState", function () {
-					$(this).toggleClass("expanded");
-				});
+            function () {
+                // Add listener on the individual items to expand/collapse the item details.
+                $(".contentItem").on("click.toggleExpandState", function () {
+                    $(this).toggleClass("expanded");
+                });
 
-				// Detect if device is Android, modify the font-family if it is.
-				if (isMobile.Android()) {
-					$("body").css("font-family", "'Roboto', serif");
-				}
-			}
+                // Detect if device is Android, modify the font-family if it is.
+                if (isMobile.Android()) {
+                    $("body").css("font-family", "'Roboto', serif");
+                }
+            }
         );
     });
 </script>
