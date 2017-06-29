@@ -16,6 +16,7 @@
 
 package com.digitalartthingy.witw;
 
+import android.app.Activity;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
@@ -24,6 +25,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback
 {
     protected static final String TAG = "MainActivity";
+    protected static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
+    protected static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
 
     /**
      * Constant used in the location settings dialog.
@@ -77,14 +84,18 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000; //5 seconds
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000; // 5 seconds
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
      * than this value.
      */
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
-            UPDATE_INTERVAL_IN_MILLISECONDS / 5; //1 second
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 5; // 1 second
+
+    /**
+     * This webview is used to display web content such as the privacy policy
+     */
+    protected WebView mWebView;
 
     /**
      * Represents a geographical location.
@@ -137,16 +148,30 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
 
+        // Create a webview so we can open web resources such as the privacy policy within the app
+        mWebView = (WebView)findViewById(R.id.webView);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setBuiltInZoomControls(true);
+
+        final Activity activity = this;
+        mWebView.setWebViewClient(new WebViewClient() {
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(activity, description, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Get the GoogleMap object
         mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(MainActivity.this);
         }
 
-        // Set labels.
+        // Set labels for the debug activity
+        // TODO: Move these init  into its own DebugActivity
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
         mLongitudeLabel = getResources().getString(R.string.longitude_label);
         mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
+
         mLatitudeText = (TextView) findViewById((R.id.latitude_text));
         mLongitudeText = (TextView) findViewById((R.id.longitude_text));
         mLastUpdateTimeText = (TextView) findViewById(R.id.last_update_time_text);
@@ -164,7 +189,33 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // If we opened up the web view previously, hide it now
+        mWebView.setVisibility(View.GONE);
+
+        // Check which menu option was selected by the user
+        switch (item.getItemId()) {
+            case R.id.action_map:
+                return true;
+            case R.id.action_debug:
+                return true;
+            case R.id.action_privacy:
+                return loadUrl(PRIVACY_POLICY_URL);
+            case R.id.action_about:
+                return loadUrl(ABOUT_URL);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private boolean loadUrl(String url) {
+        mWebView.loadUrl(url);
+        mWebView.setVisibility(View.VISIBLE);
         return true;
     }
 

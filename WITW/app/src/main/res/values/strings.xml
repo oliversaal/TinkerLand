@@ -19,6 +19,8 @@
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>
     <string name="last_update_time_label">Last location update time</string>
-    <string name="action_map">Map</string>
-    <string name="action_debug">Debug</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_debug">Debug</string>
+    <string name="menu_privacy">Privacy Policy</string>
+    <string name="menu_about">About</string>
 </resources>
