@@ -206,6 +206,8 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
             case R.id.action_privacy:
                 return loadUrl("http://www.digitalartthingy.com/legal/privacy.html");
+            case R.id.action_about:
+                return loadUrl("http://www.digitalartthingy.com/WITW.html");
             default:
                 return super.onOptionsItemSelected(item);
         }
