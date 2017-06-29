@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback
 {
     protected static final String TAG = "MainActivity";
+    protected static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
+    protected static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
 
     /**
      * Constant used in the location settings dialog.
@@ -82,14 +84,13 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000; //5 seconds
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000; // 5 seconds
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
      * than this value.
      */
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
-            UPDATE_INTERVAL_IN_MILLISECONDS / 5; //1 second
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 5; // 1 second
 
     /**
      * This webview is used to display web content such as the privacy policy
@@ -167,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements
 
         // Set labels for the debug activity
         // TODO: Move these init  into its own DebugActivity
-        // TODO: We should put these string literals into strings.XML for future localization
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
         mLongitudeLabel = getResources().getString(R.string.longitude_label);
         mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
@@ -205,9 +205,9 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_debug:
                 return true;
             case R.id.action_privacy:
-                return loadUrl("http://www.digitalartthingy.com/legal/privacy.html");
+                return loadUrl(PRIVACY_POLICY_URL);
             case R.id.action_about:
-                return loadUrl("http://www.digitalartthingy.com/WITW.html");
+                return loadUrl(ABOUT_URL);
             default:
                 return super.onOptionsItemSelected(item);
         }
