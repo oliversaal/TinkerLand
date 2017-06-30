@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 <resources>
-    <string name="app_name">Where in the world is ...</string>
+    <string name="app_name">Where in the world ...</string>
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>
     <string name="last_update_time_label">Last location update time</string>
