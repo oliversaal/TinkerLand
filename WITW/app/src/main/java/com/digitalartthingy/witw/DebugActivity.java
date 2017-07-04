@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.digitalartthingy.witw;
 
 import android.app.Activity;
@@ -31,11 +16,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
@@ -45,29 +28,22 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
-
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Location sample.
- *
- * Demonstrates use of the Location API to retrieve the last known location for a device.
- * This sample uses Google Play services (GoogleApiClient) but does not need to authenticate a user.
- * See https://github.com/googlesamples/android-google-accounts/tree/master/QuickStart if you are
- * also using APIs that need authentication.
- */
-public class MainActivity extends AppCompatActivity implements
+public class DebugActivity extends AppCompatActivity implements
         ConnectionCallbacks,
-        OnConnectionFailedListener,
+        GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        OnMapReadyCallback
-{
-    protected static final String TAG = "MainActivity";
+        OnMapReadyCallback {
+
+    protected static final String TAG = "DebugActivity";
     protected static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
     protected static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
 
@@ -75,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements
      * Constant used in the location settings dialog.
      */
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
-
-    protected int debugCount = 0;
 
     /**
      * Provides the entry point to Google Play services.
@@ -112,6 +86,16 @@ public class MainActivity extends AppCompatActivity implements
      */
     protected LocationSettingsRequest mLocationSettingsRequest;
 
+    // Labels
+    protected String mLatitudeLabel;
+    protected String mLongitudeLabel;
+    protected String mLastUpdateTimeLabel;
+
+    // TextViews
+    protected TextView mLatitudeText;
+    protected TextView mLongitudeText;
+    protected TextView mLastUpdateTimeText;
+
     /**
      * Location settings result variables
      */
@@ -125,15 +109,23 @@ public class MainActivity extends AppCompatActivity implements
      */
     protected GoogleMap mGoogleMap;
 
+    /**
+     * Time when the location was updated represented as a String.
+     */
+    protected String mLastUpdateTime;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_Base);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.activity_debug);
 
         Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Create a webview so we can open web resources such as the privacy policy within the app
         mWebView = (WebView)findViewById(R.id.webView);
@@ -150,8 +142,17 @@ public class MainActivity extends AppCompatActivity implements
         // Get the GoogleMap object
         mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         if (mMapFragment != null) {
-            mMapFragment.getMapAsync(MainActivity.this);
+            mMapFragment.getMapAsync(DebugActivity.this);
         }
+
+        // Set labels for the debug activity
+        mLatitudeLabel = getResources().getString(R.string.latitude_label);
+        mLongitudeLabel = getResources().getString(R.string.longitude_label);
+        mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
+
+        mLatitudeText = (TextView) findViewById((R.id.latitude_text));
+        mLongitudeText = (TextView) findViewById((R.id.longitude_text));
+        mLastUpdateTimeText = (TextView) findViewById(R.id.last_update_time_text);
 
         // Kick off the process of building the GoogleApiClient, LocationRequest, and
         // LocationSettingsRequest objects.
@@ -174,26 +175,18 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         // If we opened up the web view previously, hide it now
         mWebView.setVisibility(View.GONE);
+
         // Check which menu option was selected by the user
         switch (item.getItemId()) {
             case R.id.action_map:
-                //activate debug menu when pressed consecutively for 5 times
-                debugCount++;
-                if(debugCount == 5) {
-                    Intent debugIntent = new Intent(this, DebugActivity.class);
-                    startActivity(debugIntent);
-                    debugCount = 0;
-                }
+                Intent mainIntent = new Intent(this, MainActivity.class);
+                startActivity(mainIntent);
                 return true;
-
             case R.id.action_privacy:
-                debugCount = 0;
                 return loadUrl(PRIVACY_POLICY_URL);
             case R.id.action_about:
-                debugCount = 0;
                 return loadUrl(ABOUT_URL);
             default:
-                debugCount = 0;
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -235,9 +228,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-    * Uses LocationSettingsRequest.Builder to build a LocationSettingsRequest that is used for
-    *checking if a device has the needed location settings.
-    */
+     * Uses LocationSettingsRequest.Builder to build a LocationSettingsRequest that is used for
+     *checking if a device has the needed location settings.
+     */
     protected void buildLocationSettingsRequest() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
@@ -264,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements
                         Log.i(TAG, "All location settings are satisfied. Get current location");
 
                         // Initialize GPS location requests.
-                        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
+                        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, DebugActivity.this);
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -273,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements
 
                         // Prompt user to adjust device settings
                         try {
-                            mstatus.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
+                            mstatus.startResolutionForResult(DebugActivity.this, REQUEST_CHECK_SETTINGS);
                         } catch(IntentSender.SendIntentException e) {
                             Log.i(TAG, "PendingIntent unable to execute request. Resolution required");
                         }
@@ -286,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements
 
                         // Error message - log file
                         Log.e(TAG, errorMessage);
-                        Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        Toast.makeText(DebugActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
 
                 updateLocationUI();
@@ -296,6 +289,13 @@ public class MainActivity extends AppCompatActivity implements
 
     private void updateLocationUI() {
         if (mCurrentLocation != null) {
+            mLatitudeText.setText(String.format(Locale.getDefault(), "Current %s: %f", mLatitudeLabel,
+                    mCurrentLocation.getLatitude()));
+            mLongitudeText.setText(String.format(Locale.getDefault(), "Current %s: %f", mLongitudeLabel,
+                    mCurrentLocation.getLongitude()));
+            mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
+                    mLastUpdateTime));
+
             // Update the GoogleMap visuals with your current location - note there is no marker unless
             // we use the setMyLocationEnabled(true) API or place a custom marker
             if (mGoogleMap != null) {
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newPoint, 18));
             }
         }
-     }
+    }
 
     @Override
     protected void onStart() {
@@ -337,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         updateLocationUI();
     }
 
@@ -363,4 +364,4 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 }
-;
+
