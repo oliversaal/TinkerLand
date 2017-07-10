@@ -3,9 +3,13 @@
  */
 package com.digitalartthingy.witw;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String TAG = "MainActivity";
     private static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
     private static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
+
+    // Permission request for location (support Android 6.0)
+    private static final int MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION = 101;
 
     /**
      * Debug raw data
@@ -71,6 +78,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Get the GoogleMap object
         mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{ Manifest.permission.ACCESS_FINE_LOCATION },
+                    MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION);
+        } else {
+            displayGoogleMaps();
+        }
+    }
+
+    private void displayGoogleMaps() {
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(MainActivity.this);
         } else {
@@ -90,9 +108,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem debugMenuItem = menu.findItem(R.id.action_debug);
-        if (debugCount == ACTIVATE_DEBUG_KEY_PRESSES) {
-            debugMenuItem.setVisible(true);
+        // Check whether the secret sauce has been supplied and toggle the visibility of the debug menu
+        if (debugCount >= ACTIVATE_DEBUG_KEY_PRESSES) {
+            MenuItem debugMenuItem = menu.findItem(R.id.action_debug);
+            if (debugMenuItem != null) {
+                debugMenuItem.setVisible(true);
+            }
         }
 
         return true;
@@ -121,6 +142,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     *  This method is required because Android 6.0 and above evaluate permissions at run time
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode,  String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    displayGoogleMaps();
+                } else {
+                    // Location settings are not satisfied. However, we have no way to fix this
+                    String errorMessage = "Location settings are inadequate, and cannot be fixed here.";
+                    Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
     @SuppressWarnings("SameReturnValue")
     private boolean loadUrl(String url) {
         mWebView.loadUrl(url);
@@ -132,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
      * Runs when the app bar is clicked
      */
     public void OnAppBarClickHandler(View view) {
-        Log.i(TAG, "Triggered OnDebugClickHandler");
+        Log.i(TAG, "Triggered OnAppBarClickHandler");
         debugCount++;
     }
 

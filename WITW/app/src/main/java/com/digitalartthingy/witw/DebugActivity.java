@@ -3,6 +3,8 @@
  */
 package com.digitalartthingy.witw;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
@@ -156,6 +158,14 @@ public class DebugActivity extends AppCompatActivity implements
     }
 
     /**
+     * Use the FusedLocationApi to provide location information
+     */
+    private void requestLocationUpdates() {
+        // Initialize GPS location requests.
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, DebugActivity.this);
+    }
+
+    /**
      * Requests location updates from the FusedLocationApi.
      * If GPS is turn on it requests fine location.
      * If GPS is turned off it requests coarse location.
@@ -172,9 +182,7 @@ public class DebugActivity extends AppCompatActivity implements
                     case LocationSettingsStatusCodes.SUCCESS:
                         // Info message - log file
                         Log.i(TAG, "All location settings are satisfied. Get current location");
-
-                        // Initialize GPS location requests.
-                        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, DebugActivity.this);
+                        requestLocationUpdates();
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -191,8 +199,7 @@ public class DebugActivity extends AppCompatActivity implements
 
                     case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                         // Location settings are not satisfied. However, we have no way to fix this
-                        String errorMessage = "Location settings are inadequate, and cannot be " +
-                                "fixed here. Fix in Settings.";
+                        String errorMessage = "Location settings are inadequate, and cannot be fixed here. Fix in Settings.";
 
                         // Error message - log file
                         Log.e(TAG, errorMessage);
@@ -202,6 +209,17 @@ public class DebugActivity extends AppCompatActivity implements
                 updateLocationUI();
             }
         });
+    }
+
+    /**
+     * Callback triggered if we resolved location permission issues
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            requestLocationUpdates();
+        }
     }
 
     private void updateLocationUI() {
@@ -261,7 +279,7 @@ public class DebugActivity extends AppCompatActivity implements
     @Override
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason. We call connect() to
-        // Attempt to re-establish the connection.
+        // attempt to re-establish the connection.
         Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
     }
