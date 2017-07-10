@@ -28,11 +28,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -40,8 +35,7 @@ import java.util.Locale;
 public class DebugActivity extends AppCompatActivity implements
         ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
-        OnMapReadyCallback {
+        LocationListener {
 
     protected static final String TAG = "DebugActivity";
     protected static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
@@ -102,13 +96,6 @@ public class DebugActivity extends AppCompatActivity implements
     protected Status mstatus;
     protected LocationSettingsStates mSettingStates;
 
-    protected SupportMapFragment mMapFragment;
-
-    /**
-     * The persisted GoogleMap object
-     */
-    protected GoogleMap mGoogleMap;
-
     /**
      * Time when the location was updated represented as a String.
      */
@@ -119,7 +106,7 @@ public class DebugActivity extends AppCompatActivity implements
         setTheme(R.style.Theme_Base);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_debug);
+        setContentView(R.layout.debug_activity);
 
         Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
@@ -138,12 +125,6 @@ public class DebugActivity extends AppCompatActivity implements
                 Toast.makeText(activity, description, Toast.LENGTH_SHORT).show();
             }
         });
-
-        // Get the GoogleMap object
-        mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
-        if (mMapFragment != null) {
-            mMapFragment.getMapAsync(DebugActivity.this);
-        }
 
         // Set labels for the debug activity
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
@@ -295,13 +276,6 @@ public class DebugActivity extends AppCompatActivity implements
                     mCurrentLocation.getLongitude()));
             mLastUpdateTimeText.setText(String.format("%s: %s", mLastUpdateTimeLabel,
                     mLastUpdateTime));
-
-            // Update the GoogleMap visuals with your current location - note there is no marker unless
-            // we use the setMyLocationEnabled(true) API or place a custom marker
-            if (mGoogleMap != null) {
-                LatLng newPoint = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newPoint, 18));
-            }
         }
     }
 
@@ -354,14 +328,6 @@ public class DebugActivity extends AppCompatActivity implements
         // Attempt to re-establish the connection.
         Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        // Retain the GoogleMap object since we've using it with new coordinates
-        if (mGoogleMap == null) {
-            mGoogleMap = map;
-        }
     }
 }
 

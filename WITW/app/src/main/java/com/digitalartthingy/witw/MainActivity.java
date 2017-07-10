@@ -65,8 +65,7 @@ public class MainActivity extends AppCompatActivity implements
         ConnectionCallbacks,
         OnConnectionFailedListener,
         LocationListener,
-        OnMapReadyCallback
-{
+        OnMapReadyCallback {
     protected static final String TAG = "MainActivity";
     protected static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
     protected static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
@@ -76,7 +75,12 @@ public class MainActivity extends AppCompatActivity implements
      */
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
+    /**
+     * Debug variables.
+     */
     protected int debugCount = 0;
+    protected boolean debugMode = false;
+    protected MenuItem mDebugItem;
 
     /**
      * Provides the entry point to Google Play services.
@@ -132,13 +136,17 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
+        Toolbar mainToolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
 
         // Create a webview so we can open web resources such as the privacy policy within the app
-        mWebView = (WebView)findViewById(R.id.webView);
+        mWebView = (WebView) findViewById(R.id.webView);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setBuiltInZoomControls(true);
+
+        // Hide a debugMenu item
+//        mDebugItem = (MenuItem) findViewById(R.id.action_debug);
+//        mDebugItem.setVisible(true);
 
         final Activity activity = this;
         mWebView.setWebViewClient(new WebViewClient() {
@@ -148,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         // Get the GoogleMap object
-        mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(MainActivity.this);
         }
@@ -177,15 +185,8 @@ public class MainActivity extends AppCompatActivity implements
         // Check which menu option was selected by the user
         switch (item.getItemId()) {
             case R.id.action_map:
-                //activate debug menu when pressed consecutively for 5 times
-                debugCount++;
-                if(debugCount == 5) {
-                    Intent debugIntent = new Intent(this, DebugActivity.class);
-                    startActivity(debugIntent);
-                    debugCount = 0;
-                }
+                debugCount = 0;
                 return true;
-
             case R.id.action_privacy:
                 debugCount = 0;
                 return loadUrl(PRIVACY_POLICY_URL);
@@ -218,8 +219,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     *The device needs to enable the appropriate system settings.
-     *These settings are defined by the LocationRequest data object.
+     * The device needs to enable the appropriate system settings.
+     * These settings are defined by the LocationRequest data object.
      */
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -235,9 +236,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-    * Uses LocationSettingsRequest.Builder to build a LocationSettingsRequest that is used for
-    *checking if a device has the needed location settings.
-    */
+     * Uses LocationSettingsRequest.Builder to build a LocationSettingsRequest that is used for
+     * checking if a device has the needed location settings.
+     */
     protected void buildLocationSettingsRequest() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
@@ -274,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements
                         // Prompt user to adjust device settings
                         try {
                             mstatus.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
-                        } catch(IntentSender.SendIntentException e) {
+                        } catch (IntentSender.SendIntentException e) {
                             Log.i(TAG, "PendingIntent unable to execute request. Resolution required");
                         }
                         break;
@@ -303,7 +304,27 @@ public class MainActivity extends AppCompatActivity implements
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newPoint, 18));
             }
         }
-     }
+    }
+
+    /**
+     * Runs when taskbar is clicked.
+     */
+    public void taskbarClickHandler(View view) {
+        debugCount++;
+        //activate debug menu when pressed consecutively for 10 times
+//        if (mDebugItem.isVisible){
+            // DebugMode already enables reset count and do nothin
+//            debugCount = 0;
+//        }else{
+            if (debugCount == 10) {
+                // Start debug activity
+//                mDebugItem.setVisible(true);
+                Intent debugIntent = new Intent(this, DebugActivity.class);
+                startActivity(debugIntent);
+                debugCount = 0;
+            }
+//        }
+    }
 
     @Override
     protected void onStart() {
@@ -363,4 +384,3 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 }
-;
