@@ -104,9 +104,9 @@ public class DebugActivity extends AppCompatActivity implements
         mLatitudeLabel = getResources().getString(R.string.latitude_label);
         mLongitudeLabel = getResources().getString(R.string.longitude_label);
         mLastUpdateTimeLabel = getResources().getString(R.string.last_update_time_label);
-        mLatitudeText = (TextView) findViewById((R.id.latitude_text));
-        mLongitudeText = (TextView) findViewById((R.id.longitude_text));
-        mLastUpdateTimeText = (TextView) findViewById(R.id.last_update_time_text);
+        mLatitudeText = (TextView)findViewById((R.id.latitude_text));
+        mLongitudeText = (TextView)findViewById((R.id.longitude_text));
+        mLastUpdateTimeText = (TextView)findViewById(R.id.last_update_time_text);
 
         // Kick off the process of building the GoogleApiClient, LocationRequest, and
         // LocationSettingsRequest objects.

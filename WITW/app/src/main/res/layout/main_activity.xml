@@ -29,7 +29,7 @@
         android:elevation="4dp"
         android:theme="@style/Theme.WITW.AppBarOverlay"
         app:popupTheme="@style/Theme.WITW.PopupOverlay"
-        android:onClick="OnDebugClickHandler"/>
+        android:onClick="OnAppBarClickHandler"/>
 
     <WebView
         android:id="@+id/webView"

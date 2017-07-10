@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
      * Debug raw data
      */
     private static final int ACTIVATE_DEBUG_KEY_PRESSES = 3;
-    private int debugCount = 0;
+    private static int debugCount = 0;
 
     /**
      * This web view is used to display web content such as the privacy policy
@@ -88,6 +89,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem debugMenuItem = menu.findItem(R.id.action_debug);
+        if (debugCount == ACTIVATE_DEBUG_KEY_PRESSES) {
+            debugMenuItem.setVisible(true);
+        }
+
+        return true;
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // If we opened up the web view previously, hide it now
         mWebView.setVisibility(View.GONE);
@@ -95,16 +107,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Check which menu option was selected by the user
         switch (item.getItemId()) {
             case R.id.action_map:
-                debugCount = 0;
                 return true;
             case R.id.action_privacy:
-                debugCount = 0;
                 return loadUrl(PRIVACY_POLICY_URL);
             case R.id.action_about:
-                debugCount = 0;
                 return loadUrl(ABOUT_URL);
+            case R.id.action_debug:
+                Intent debugIntent = new Intent(this, DebugActivity.class);
+                startActivity(debugIntent);
+                return true;
             default:
-                debugCount = 0;
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -117,18 +129,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
-     * Runs when the task bar is clicked.
+     * Runs when the app bar is clicked
      */
-    public void OnDebugClickHandler(View view) {
-        debugCount++;
+    public void OnAppBarClickHandler(View view) {
         Log.i(TAG, "Triggered OnDebugClickHandler");
-
-        if (debugCount == ACTIVATE_DEBUG_KEY_PRESSES) {
-            // Start debug activity
-            Intent debugIntent = new Intent(this, DebugActivity.class);
-            startActivity(debugIntent);
-            debugCount = 0;
-        }
+        debugCount++;
     }
 
     @Override
