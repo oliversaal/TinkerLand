@@ -24,6 +24,7 @@
     <item
         android:id="@+id/action_debug"
         android:orderInCategory="103"
-        android:title="@string/debug_label"
+        android:title="@string/menu_debug"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>

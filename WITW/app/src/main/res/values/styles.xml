@@ -2,21 +2,14 @@
      Copyright (C) 2017 Digital Art Thingy Inc.
 -->
 <resources>
-
-    <style name="Theme.WITW" parent="Theme.AppCompat.Light">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-    </style>
     // This deactivates Android native toolbar. We want the most recent features that are added to
     // Support library's version of the toolbar.
+    <style name="Theme.Base" parent="Theme.AppCompat.Light.NoActionBar" />
 
-    <style name="Theme.Base" parent="Theme.AppCompat.Light.NoActionBar"></style>
-
-    <style name="Theme.WITW.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="Theme.WITW.LaunchScreen" parent="Theme.Base">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
     <style name="Theme.WITW.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="Theme.WITW.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

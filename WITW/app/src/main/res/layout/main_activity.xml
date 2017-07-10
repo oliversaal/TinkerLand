@@ -27,13 +27,12 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorAccent"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:onClick="taskbarClickHandler"/>
+        android:theme="@style/Theme.WITW.AppBarOverlay"
+        app:popupTheme="@style/Theme.WITW.PopupOverlay"
+        android:onClick="OnDebugClickHandler"/>
 
     <WebView
         android:id="@+id/webView"
-        android:layout_below="@+id/relay"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:visibility="gone" />
