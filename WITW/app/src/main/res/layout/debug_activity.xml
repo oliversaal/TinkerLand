@@ -26,7 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorAccent"
-        android:elevation="4dp"
         android:theme="@style/Theme.WITW.AppBarOverlay"
         app:popupTheme="@style/Theme.WITW.PopupOverlay" />
 
@@ -35,6 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/text_margin"
+        android:layout_marginLeft="@dimen/text_margin"
         android:layout_marginTop="@dimen/text_margin"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_size" />
@@ -44,6 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/text_margin"
+        android:layout_marginLeft="@dimen/text_margin"
         android:layout_marginTop="@dimen/text_margin"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_size" />
@@ -53,6 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/text_margin"
+        android:layout_marginLeft="@dimen/text_margin"
         android:layout_marginTop="@dimen/text_margin"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_size" />

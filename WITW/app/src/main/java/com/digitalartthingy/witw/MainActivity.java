@@ -7,6 +7,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -96,6 +97,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Log.i(TAG, "Triggered onConfigurationChanged");
+        debugCount++;
+    }
+
     /**
      * Inflates the menu. This adds items to the action bar if it is present
      **/
@@ -103,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
         return true;
     }
 
@@ -118,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -164,17 +173,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean loadUrl(String url) {
         mWebView.loadUrl(url);
         mWebView.setVisibility(View.VISIBLE);
+
         return true;
     }
 
     /**
-     * Runs when the app bar is clicked
+     * Triggered when the GoogleMap object is returned
      */
-    public void OnAppBarClickHandler(View view) {
-        Log.i(TAG, "Triggered OnAppBarClickHandler");
-        debugCount++;
-    }
-
     @Override
     public void onMapReady(GoogleMap map) {
         Log.i(TAG, "Triggered OnMapReady");
