@@ -8,11 +8,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -23,9 +24,16 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        OnMapReadyCallback {
     private static final String TAG = "MainActivity";
     private static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
     private static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
@@ -54,6 +62,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     private GoogleMap mGoogleMap;
 
+    /**
+     * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
+     */
+    private static final float MAX_ZOOM_LEVEL_PREFERENCE = 15.0f;
+    private static float mZoomLevel = MAX_ZOOM_LEVEL_PREFERENCE;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_Base);
@@ -80,16 +94,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Get the GoogleMap object
         mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
 
+        // For Android 6.0 and above, verify that we have sufficient privileges and permission to access location information
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{ Manifest.permission.ACCESS_FINE_LOCATION },
                     MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION);
         } else {
-            displayGoogleMaps();
+            displayGoogleMap();
         }
     }
 
-    private void displayGoogleMaps() {
+    private void displayGoogleMap() {
         if (mMapFragment != null) {
             mMapFragment.getMapAsync(MainActivity.this);
         } else {
@@ -155,14 +170,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
      *  This method is required because Android 6.0 and above evaluate permissions at run time
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,  String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    displayGoogleMaps();
+                    displayGoogleMap();
                 } else {
                     // Location settings are not satisfied. However, we have no way to fix this
                     String errorMessage = "Location settings are inadequate, and cannot be fixed here.";
+                    Log.e(TAG, errorMessage);
                     Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
@@ -190,6 +206,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             // The camera is now update with the current GPS location
             mGoogleMap.setMyLocationEnabled(true);
+
+            //
+            // The following camera methods have been deprecated - we need to find alternates
+            //
+
+            // Remember the zoom level if the camera position is changed
+            mGoogleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                @Override
+                public void onCameraChange(CameraPosition cameraPosition) {
+                    // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
+                    if (cameraPosition.zoom <= MAX_ZOOM_LEVEL_PREFERENCE) {
+                        mZoomLevel = cameraPosition.zoom;
+                    }
+                }
+            });
+
+            // Center the camera on the current position and adjust to the desired zoom level
+            mGoogleMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+                @Override
+                public void onMyLocationChange(Location lastKnownLocation) {
+                    if (lastKnownLocation != null) {
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
+                    }
+                }
+            });
         }
     }
 }
