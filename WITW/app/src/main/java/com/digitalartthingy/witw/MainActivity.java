@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
                     // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
-                    if (cameraPosition.zoom <= MAX_ZOOM_LEVEL_PREFERENCE) {
+                    if (cameraPosition.zoom != MAX_ZOOM_LEVEL_PREFERENCE) {
                         mZoomLevel = cameraPosition.zoom;
                     }
                 }
