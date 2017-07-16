@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Debug raw data
      */
-    private static final int ACTIVATE_DEBUG_KEY_PRESSES = 3;
+    private static final int ACTIVATE_DEBUG_KEY_PRESSES = 10;
     private static int debugCount = 0;
 
     /**
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
                     // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
-                    if (cameraPosition.zoom != MAX_ZOOM_LEVEL_PREFERENCE) {
+                    if (cameraPosition.zoom != mZoomLevel) {
                         mZoomLevel = cameraPosition.zoom;
                     }
                 }
