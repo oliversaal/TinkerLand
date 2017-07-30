@@ -232,12 +232,12 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
 
-            // Reset the zoom level to closer to street-level when the MyLocation button is clicked
+            // Reset the zoom level to street level when the MyLocation button is clicked
             mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
                     mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
-                    return true;
+                    return false;
                 }
             });
         }
