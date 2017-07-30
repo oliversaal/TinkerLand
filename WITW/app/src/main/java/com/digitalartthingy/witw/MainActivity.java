@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
      */
-    private static final float MAX_ZOOM_LEVEL_PREFERENCE = 15.0f;
-    private static float mZoomLevel = MAX_ZOOM_LEVEL_PREFERENCE;
+    private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
+    private static float mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -229,6 +229,15 @@ public class MainActivity extends AppCompatActivity implements
                     if (lastKnownLocation != null) {
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
                     }
+                }
+            });
+
+            // Reset the zoom level to street level when the MyLocation button is clicked
+            mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                @Override
+                public boolean onMyLocationButtonClick() {
+                    mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
+                    return false;
                 }
             });
         }
