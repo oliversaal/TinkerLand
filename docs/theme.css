@@ -1,51 +1,51 @@
-body { 
-	padding-top: 70px; 
-	padding-bottom: 30px;
+body {
+    padding-top: 70px;
+    padding-bottom: 30px;
 }
-.theme-dropdown .dropdown-menu { 
-	position: static; 
-	display: block; 
-	margin-bottom: 20px;
+.theme-dropdown .dropdown-menu {
+    position: static;
+    display: block;
+    margin-bottom: 20px;
 }
-.theme-showcase > p > .btn { 
-	margin: 5px 0;
+.theme-showcase > p > .btn {
+    margin: 5px 0;
 }
-.theme-showcase .navbar .container { 
-	width: auto;
+.theme-showcase .navbar .container {
+    width: auto;
 }
 
-.main_container { 
-	padding: 0;
+.main_container {
+    padding: 0;
 }
-.main_container .focus_block img { 
-	width: 100%;
+.main_container .focus_block img {
+    width: 100%;
 }
-.main_container .jumbotron .image_container { 
-	text-align: center; 
-	width: 100%;
+.main_container .jumbotron .image_container {
+    text-align: center;
+    width: 100%;
 }
-.main_container .jumbotron .image_container img { 
-	max-width:480px; 
-	width: 100%;
+.main_container .jumbotron .image_container img {
+    max-width:480px;
+    width: 100%;
 }
-.main_container ul { 
-	padding: 0 0 0 20px; 
-	list-style: none; 
-	margin: 30px 0;
+.main_container ul {
+    padding: 0 0 0 20px;
+    list-style: none;
+    margin: 30px 0;
 }
-.main_container ul li { 
-	background: url(images/list_button.png) no-repeat 0 3px; 
-	width: auto; 
-	height: 20px; 
-	margin-left: -20px; 
-	padding-left: 30px; 
-	font-size: 18px; 
-	margin-bottom: 15px; 
-	display: table;
+.main_container ul li {
+    background: url(images/list_button.png) no-repeat 0 3px;
+    width: auto;
+    height: 20px;
+    margin-left: -20px;
+    padding-left: 30px;
+    font-size: 18px;
+    margin-bottom: 15px;
+    display: table;
 }
 
 @media screen and (max-width: 768px) {
-    .jumbotron p, .main_container ul li { 
-		font-size: 1.5rem;
-	}
+    .jumbotron p, .main_container ul li {
+        font-size: 1.5rem;
+    }
 }
