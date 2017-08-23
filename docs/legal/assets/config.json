@@ -1,6 +1,6 @@
 {
     "pageOptions" : {
-        "headerImage" : "http://placehold.it/250x250",
+        "headerImage" : "",
         "headerColor" : "#F3F8FE",
         "headline" : "Privacy Policy",
         "subHeading" : "<b>We will not</b>, without your permission, sell, publish or share information you entrust to us that identifies you or any person.",
@@ -12,13 +12,14 @@
         "dataNotSharedSectionHeader" : "Data not shared"
     },
     "collected" : [
+    ],
+    "notCollected" : [
         {
             "element" : "Financial information",
             "why" : "To manage your business.",
             "class" : "",
             "moreInfo" : ["Credit, bank, tax, and other financial data you use to stay productive. Only with your permission."]
-        }
-        ,
+        },
         {
             "element" : "Contact information",
             "why" : "To stay connected.",
@@ -31,9 +32,7 @@
             "why" : "To find your customers.",
             "class" : "",
             "moreInfo" : ["Past and current locations used to find and track expenses and receipts. Only with your permission."]
-        }
-    ],
-    "notCollected" : [
+        },
         {
             "element" : "Biometrics",
             "why" : "We <b>do not</b> collect this.",
@@ -66,14 +65,14 @@
         }
     ],
     "shared" : [
+    ],
+    "notShared" : [
         {
             "element" : "Government entities",
             "why" : "Only when required by law.",
             "class" : "",
             "moreInfo" : ["We share information with <i>government entities</i> <strong>only</strong> when required by law or expressly permitted in an emergency."]
-        }
-    ],
-    "notShared" : [
+        },
         {
             "element" : "Carriers",
             "why" : "We <b>do not</b> share your personal information with them.",

@@ -25,8 +25,8 @@ android {
         applicationId "com.digitalartthingy.witw"
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 4
-        versionName "Alpha build - updated"
+        versionCode 6
+        versionName "Beta release of Where in the world ..."
         resValue "string", "google_maps_key", (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
     }
     buildTypes {
