@@ -16,6 +16,14 @@
 .main_container .focus_block img {
     width: 100%;
 }
+.main_container .jumbotron {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+.main_container .jumbotron .endstate {
+    padding-bottom: 15px;
+    margin-bottom: 0px;
+}
 .main_container .jumbotron .image_container {
     text-align: center;
     width: 100%;
