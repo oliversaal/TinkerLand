@@ -6,6 +6,7 @@ package com.digitalartthingy.witw;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -28,8 +29,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -63,6 +66,13 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleMap mGoogleMap;
 
     /**
+     * The persisted preferences
+     */
+    private static final String PREFERENCE ;
+    private SharedPreferences settings;
+
+
+    /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
      */
     private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
@@ -70,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        settings = getSharedPreferences(PREFERENCE,MODE_PRIVATE);
+
         setTheme(R.style.Theme_Base);
 
         super.onCreate(savedInstanceState);
@@ -240,6 +253,27 @@ public class MainActivity extends AppCompatActivity implements
                     return false;
                 }
             });
+
+            //Add marker to map when user makes a long-press gesture on map.
+            mGoogleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng ll) {
+                    map.addMarker(new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                            .position(new LatLng(ll.latitude, ll.longitude)));
+
+                    setPreference(ll);
+                }
+            });
         }
+    }
+
+    //Add to preferences
+    public void setPreference(LatLng ll) {
+        SharedPreferences.Editor editor = settings.edit();
+        //Still need to make this into an array
+        editor.putString(PREFERENCE, ll.toString());
+        editor.commit();
+
     }
 }
