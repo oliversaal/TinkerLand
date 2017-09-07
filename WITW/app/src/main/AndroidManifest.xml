@@ -25,6 +25,12 @@ limitations under the License.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- Amazon AppStore will fail since most Kindle devices do not contain GPS hardware.
+     For this reason, we explicitly state that the GPS feature is not required.
+    -->
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
