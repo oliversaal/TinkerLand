@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.amazon.geo.mapsv2.*;
 import com.amazon.geo.mapsv2.model.*;
+import com.amazon.geo.mapsv2.util.*;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The support map fragment is used to display the map itself
      */
-    private SupportMapFragment mMapFragment;
+    private com.amazon.geo.mapsv2.MapFragment mMapFragment;
 
     /**
      * The persisted AmazonMap object
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         // Get the GoogleMap object
-        mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        mMapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
 
         // For Android 6.0 and above, verify that we have sufficient privileges and permission to access location information
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -101,10 +102,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void displayGoogleMap() {
-        if (mMapFragment != null) {
-            mMapFragment.getMapAsync(MainActivity.this);
+        int resultCode = AmazonMapsRuntimeUtil
+                .isAmazonMapsRuntimeAvailable(getApplicationContext());
+        boolean mapsRuntimeAvailable = resultCode == ConnectionResult.SUCCESS;
+
+        if (mapsRuntimeAvailable) {
+            if (mMapFragment != null) {
+                mMapFragment.getMapAsync(MainActivity.this);
+            } else {
+                Log.i(TAG, "UNEXPECTED: mMapFragment is null");
+            }
         } else {
-            Log.i(TAG, "UNEXPECTED: mMapFragment is null");
+            AmazonMapsRuntimeUtil.getErrorDialog(resultCode, this, 0).show();
         }
     }
 
@@ -155,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements
                 return loadUrl(ABOUT_URL);
             case R.id.action_debug:
                 /*
+                // Disabling debug activity since it uses GoogleMaps APIs
                 Intent debugIntent = new Intent(this, DebugActivity.class);
                 startActivity(debugIntent);
                 */
