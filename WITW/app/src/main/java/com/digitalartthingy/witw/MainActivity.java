@@ -5,7 +5,6 @@ package com.digitalartthingy.witw;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -39,12 +38,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final int MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION = 101;
 
     /**
-     * Debug raw data
-     */
-    private static final int ACTIVATE_DEBUG_KEY_PRESSES = 10;
-    private static int debugCount = 0;
-
-    /**
      * This web view is used to display web content such as the privacy policy
      */
     private WebView mWebView;
@@ -52,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The support map fragment is used to display the map itself
      */
-    private com.amazon.geo.mapsv2.MapFragment mMapFragment;
+    private MapFragment mMapFragment;
 
     /**
      * The persisted AmazonMap object
@@ -88,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        // Get the GoogleMap object
+        // Get the map fragment
         mMapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
 
         // For Android 6.0 and above, verify that we have sufficient privileges and permission to access location information
@@ -97,11 +90,11 @@ public class MainActivity extends AppCompatActivity implements
                     new String[]{ Manifest.permission.ACCESS_FINE_LOCATION },
                     MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION);
         } else {
-            displayGoogleMap();
+            displayMap();
         }
     }
 
-    private void displayGoogleMap() {
+    private void displayMap() {
         int resultCode = AmazonMapsRuntimeUtil
                 .isAmazonMapsRuntimeAvailable(getApplicationContext());
         boolean mapsRuntimeAvailable = resultCode == ConnectionResult.SUCCESS;
@@ -117,14 +110,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        Log.i(TAG, "Triggered onConfigurationChanged");
-        debugCount++;
-    }
-
     /**
      * Inflates the menu. This adds items to the action bar if it is present
      **/
@@ -132,19 +117,6 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // Check whether the secret sauce has been supplied and toggle the visibility of the debug menu
-        if (debugCount >= ACTIVATE_DEBUG_KEY_PRESSES) {
-            MenuItem debugMenuItem = menu.findItem(R.id.action_debug);
-            if (debugMenuItem != null) {
-                debugMenuItem.setVisible(true);
-            }
-        }
 
         return true;
     }
@@ -162,13 +134,6 @@ public class MainActivity extends AppCompatActivity implements
                 return loadUrl(PRIVACY_POLICY_URL);
             case R.id.action_about:
                 return loadUrl(ABOUT_URL);
-            case R.id.action_debug:
-                /*
-                // Disabling debug activity since it uses GoogleMaps APIs
-                Intent debugIntent = new Intent(this, DebugActivity.class);
-                startActivity(debugIntent);
-                */
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -182,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    displayGoogleMap();
+                    displayMap();
                 } else {
                     // Location settings are not satisfied. However, we have no way to fix this
                     String errorMessage = "Location settings are inadequate, and cannot be fixed here.";
@@ -202,13 +167,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Triggered when the GoogleMap object is returned
+     * Triggered when the AmazonMap object is returned
      */
     @Override
     public void onMapReady(AmazonMap map) {
         Log.i(TAG, "Triggered OnMapReady");
 
-        // Retain the GoogleMap object since we've using it with new coordinates
+        // Retain the map object since we've using it with new coordinates
         if (mMap == null) {
             mMap = map;
 
