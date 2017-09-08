@@ -24,12 +24,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
+import com.amazon.geo.mapsv2.*;
+import com.amazon.geo.mapsv2.model.*;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -58,9 +54,9 @@ public class MainActivity extends AppCompatActivity implements
     private SupportMapFragment mMapFragment;
 
     /**
-     * The persisted GoogleMap object
+     * The persisted AmazonMap object
      */
-    private GoogleMap mGoogleMap;
+    private AmazonMap mMap;
 
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
@@ -158,8 +154,10 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_about:
                 return loadUrl(ABOUT_URL);
             case R.id.action_debug:
+                /*
                 Intent debugIntent = new Intent(this, DebugActivity.class);
                 startActivity(debugIntent);
+                */
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -197,22 +195,22 @@ public class MainActivity extends AppCompatActivity implements
      * Triggered when the GoogleMap object is returned
      */
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(AmazonMap map) {
         Log.i(TAG, "Triggered OnMapReady");
 
         // Retain the GoogleMap object since we've using it with new coordinates
-        if (mGoogleMap == null) {
-            mGoogleMap = map;
+        if (mMap == null) {
+            mMap = map;
 
             // The camera is now update with the current GPS location
-            mGoogleMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(true);
 
             //
             // The following camera methods have been deprecated - we need to find alternates
             //
 
             // Remember the zoom level if the camera position is changed
-            mGoogleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            mMap.setOnCameraChangeListener(new AmazonMap.OnCameraChangeListener() {
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
                     // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
@@ -223,17 +221,17 @@ public class MainActivity extends AppCompatActivity implements
             });
 
             // Center the camera on the current position and adjust to the desired zoom level
-            mGoogleMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            mMap.setOnMyLocationChangeListener(new AmazonMap.OnMyLocationChangeListener() {
                 @Override
                 public void onMyLocationChange(Location lastKnownLocation) {
                     if (lastKnownLocation != null) {
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
                     }
                 }
             });
 
             // Reset the zoom level to street level when the MyLocation button is clicked
-            mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            mMap.setOnMyLocationButtonClickListener(new AmazonMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
                     mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
