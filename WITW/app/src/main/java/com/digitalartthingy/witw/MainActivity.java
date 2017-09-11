@@ -5,7 +5,6 @@ package com.digitalartthingy.witw;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -24,12 +23,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
+import com.amazon.geo.mapsv2.*;
+import com.amazon.geo.mapsv2.model.*;
+import com.amazon.geo.mapsv2.util.*;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -42,12 +38,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final int MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION = 101;
 
     /**
-     * Debug raw data
-     */
-    private static final int ACTIVATE_DEBUG_KEY_PRESSES = 10;
-    private static int debugCount = 0;
-
-    /**
      * This web view is used to display web content such as the privacy policy
      */
     private WebView mWebView;
@@ -55,12 +45,12 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The support map fragment is used to display the map itself
      */
-    private SupportMapFragment mMapFragment;
+    private MapFragment mMapFragment;
 
     /**
-     * The persisted GoogleMap object
+     * The persisted AmazonMap object
      */
-    private GoogleMap mGoogleMap;
+    private AmazonMap mMap;
 
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
@@ -91,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        // Get the GoogleMap object
-        mMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        // Get the map fragment
+        mMapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
 
         // For Android 6.0 and above, verify that we have sufficient privileges and permission to access location information
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -100,24 +90,24 @@ public class MainActivity extends AppCompatActivity implements
                     new String[]{ Manifest.permission.ACCESS_FINE_LOCATION },
                     MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION);
         } else {
-            displayGoogleMap();
+            displayMap();
         }
     }
 
-    private void displayGoogleMap() {
-        if (mMapFragment != null) {
-            mMapFragment.getMapAsync(MainActivity.this);
+    private void displayMap() {
+        int resultCode = AmazonMapsRuntimeUtil
+                .isAmazonMapsRuntimeAvailable(getApplicationContext());
+        boolean mapsRuntimeAvailable = resultCode == ConnectionResult.SUCCESS;
+
+        if (mapsRuntimeAvailable) {
+            if (mMapFragment != null) {
+                mMapFragment.getMapAsync(MainActivity.this);
+            } else {
+                Log.i(TAG, "UNEXPECTED: mMapFragment is null");
+            }
         } else {
-            Log.i(TAG, "UNEXPECTED: mMapFragment is null");
+            AmazonMapsRuntimeUtil.getErrorDialog(resultCode, this, 0).show();
         }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        Log.i(TAG, "Triggered onConfigurationChanged");
-        debugCount++;
     }
 
     /**
@@ -127,19 +117,6 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // Check whether the secret sauce has been supplied and toggle the visibility of the debug menu
-        if (debugCount >= ACTIVATE_DEBUG_KEY_PRESSES) {
-            MenuItem debugMenuItem = menu.findItem(R.id.action_debug);
-            if (debugMenuItem != null) {
-                debugMenuItem.setVisible(true);
-            }
-        }
 
         return true;
     }
@@ -157,10 +134,6 @@ public class MainActivity extends AppCompatActivity implements
                 return loadUrl(PRIVACY_POLICY_URL);
             case R.id.action_about:
                 return loadUrl(ABOUT_URL);
-            case R.id.action_debug:
-                Intent debugIntent = new Intent(this, DebugActivity.class);
-                startActivity(debugIntent);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -174,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    displayGoogleMap();
+                    displayMap();
                 } else {
                     // Location settings are not satisfied. However, we have no way to fix this
                     String errorMessage = "Location settings are inadequate, and cannot be fixed here.";
@@ -194,25 +167,25 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Triggered when the GoogleMap object is returned
+     * Triggered when the AmazonMap object is returned
      */
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(AmazonMap map) {
         Log.i(TAG, "Triggered OnMapReady");
 
-        // Retain the GoogleMap object since we've using it with new coordinates
-        if (mGoogleMap == null) {
-            mGoogleMap = map;
+        // Retain the map object since we've using it with new coordinates
+        if (mMap == null) {
+            mMap = map;
 
             // The camera is now update with the current GPS location
-            mGoogleMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(true);
 
             //
             // The following camera methods have been deprecated - we need to find alternates
             //
 
             // Remember the zoom level if the camera position is changed
-            mGoogleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            mMap.setOnCameraChangeListener(new AmazonMap.OnCameraChangeListener() {
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
                     // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
@@ -223,17 +196,17 @@ public class MainActivity extends AppCompatActivity implements
             });
 
             // Center the camera on the current position and adjust to the desired zoom level
-            mGoogleMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            mMap.setOnMyLocationChangeListener(new AmazonMap.OnMyLocationChangeListener() {
                 @Override
                 public void onMyLocationChange(Location lastKnownLocation) {
                     if (lastKnownLocation != null) {
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
                     }
                 }
             });
 
             // Reset the zoom level to street level when the MyLocation button is clicked
-            mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            mMap.setOnMyLocationButtonClickListener(new AmazonMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
                     mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;

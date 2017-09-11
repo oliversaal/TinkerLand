@@ -25,9 +25,8 @@ android {
         applicationId "com.digitalartthingy.witw"
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 101
+        versionCode 102
         versionName "Amazon Appstore release"
-        resValue "string", "google_maps_key", (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
     }
     buildTypes {
         release {
@@ -41,6 +40,5 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.google.android.gms:play-services-location:8.1.0'
-    compile 'com.google.android.gms:play-services-maps:8.1.0'
+    compile project(':amazon-maps-api-v2')
 }
