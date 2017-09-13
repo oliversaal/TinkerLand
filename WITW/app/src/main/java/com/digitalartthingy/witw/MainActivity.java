@@ -24,6 +24,8 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,12 +36,14 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         OnMapReadyCallback {
     private static final String TAG = "MainActivity";
     private static final String PRIVACY_POLICY_URL = "http://www.digitalartthingy.com/legal/privacy.html";
     private static final String ABOUT_URL = "http://www.digitalartthingy.com/WITW.html";
+    private static final String MARKER_KEY = "Marker Coordinates" ;
 
     // Permission request for location (support Android 6.0)
     private static final int MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION = 101;
@@ -68,9 +72,11 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The persisted preferences
      */
-    private static final String PREFERENCE ;
     private SharedPreferences settings;
-
+    Map<String, ?> allEntries = new HashMap<>();
+    private String[] storedLatlongCoordinates;
+    private double latitude;
+    private double longitude;
 
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
@@ -80,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
-        settings = getSharedPreferences(PREFERENCE,MODE_PRIVATE);
+        settings = getPreferences(MODE_PRIVATE);
+        getMarkerPreference();
 
         setTheme(R.style.Theme_Base);
 
@@ -217,6 +223,18 @@ public class MainActivity extends AppCompatActivity implements
         if (mGoogleMap == null) {
             mGoogleMap = map;
 
+            //Get latitude and longitude coordinates from stored entries and place markers on map
+            if (allEntries.containsValue() = true) {
+                        for(Map.Entry<String, ?> entry : allEntries.entrySet()) {
+                storedLatlongCoordinates = entry.getValue().toString().split(",");
+                latitude = Double.parseDouble(storedLatlongCoordinates[0]);
+                longitude = Double.parseDouble(storedLatlongCoordinates[1]);
+                            map.addMarker(new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                            .position(new LatLng(latitude, longitude)));
+            }
+            }
+
             // The camera is now update with the current GPS location
             mGoogleMap.setMyLocationEnabled(true);
 
@@ -262,18 +280,24 @@ public class MainActivity extends AppCompatActivity implements
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
                             .position(new LatLng(ll.latitude, ll.longitude)));
 
-                    setPreference(ll);
+                    setMarkerPreference(ll);
                 }
             });
         }
     }
 
     //Add to preferences
-    public void setPreference(LatLng ll) {
+    public void setMarkerPreference(LatLng ll) {
         SharedPreferences.Editor editor = settings.edit();
-        //Still need to make this into an array
-        editor.putString(PREFERENCE, ll.toString());
+        editor.putString(MARKER_KEY, ll.toString());
         editor.commit();
 
     }
+
+     //Retrieve preferences and add makers to map
+     public void getMarkerPreference() {
+         allEntries = settings.getAll();
+
+    }
+
 }
