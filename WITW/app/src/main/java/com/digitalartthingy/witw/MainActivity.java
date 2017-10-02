@@ -6,6 +6,7 @@ package com.digitalartthingy.witw;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -23,13 +24,16 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import java.util.Map;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -63,6 +67,16 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleMap mGoogleMap;
 
     /**
+     * The marker variables
+     */
+    MarkerFetcher pin = new MarkerFetcher();
+
+    /**
+     * Define persisted preferences
+     */
+   private SharedPreferences settings;
+
+    /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
      */
     private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
@@ -74,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        settings = getPreferences(MODE_PRIVATE);
 
         Toolbar mainToolbar = (Toolbar)findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
@@ -232,12 +248,38 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
 
+            //Get latitude and longitude coordinates from stored entries and place markers on map
+            Map<String, ?> storedCoordinates = pin.getMarkerPreference(settings);
+            String[] latlngCoordinates;
+
+            if (storedCoordinates != null) {
+                        for(Map.Entry<String, ?> eachCoord : storedCoordinates.entrySet()) {
+                latlngCoordinates = eachCoord.getValue().toString().split("\\(|,|\\)");
+                double latitude = Double.parseDouble(latlngCoordinates[1]);
+                double longitude = Double.parseDouble(latlngCoordinates[2]);
+                            map.addMarker(new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                            .position(new LatLng(latitude, longitude)));
+            }
+            }
+
             // Reset the zoom level to street level when the MyLocation button is clicked
             mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
                     mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
                     return false;
+                }
+            });
+
+            //Add marker to map when user makes a long-press gesture on map.
+            mGoogleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng ll) {
+                    mGoogleMap.addMarker(new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
+                            .position(new LatLng(ll.latitude, ll.longitude)));
+                    pin.setMarkerPreference(ll.toString(), settings);
                 }
             });
         }
