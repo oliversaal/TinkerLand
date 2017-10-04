@@ -22,14 +22,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -60,7 +63,12 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * The persisted GoogleMap object
      */
-    private GoogleMap mGoogleMap;
+    private GoogleMap mMap;
+
+    /**
+     * The list of coffee shop markers
+     */
+    private final MarkerFetcher mCoffeeFetcher = new MarkerFetcher();
 
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
@@ -201,18 +209,39 @@ public class MainActivity extends AppCompatActivity implements
         Log.i(TAG, "Triggered OnMapReady");
 
         // Retain the GoogleMap object since we've using it with new coordinates
-        if (mGoogleMap == null) {
-            mGoogleMap = map;
+        if (mMap == null) {
+            mMap = map;
 
             // The camera is now update with the current GPS location
-            mGoogleMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(true);
+
+            // Populate the coffee shop markers on the map when clicked
+            final ImageView coffeeImage = (ImageView)findViewById(R.id.find_coffee);
+            coffeeImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (mMap != null) {
+                        findCoffee();
+                    }
+                }
+            });
+
+            // Set up a handler for adding markers
+            map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                 @Override
+                 public void onMapLongClick(LatLng ll) {
+                     //TODO: Pop up a MarkerDetails dialog to collect information about new marker
+                     CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
+                     mCoffeeFetcher.addNewMarker(customMarker, mMap);
+                 }
+             });
 
             //
             // The following camera methods have been deprecated - we need to find alternates
             //
 
             // Remember the zoom level if the camera position is changed
-            mGoogleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
                     // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
@@ -223,17 +252,17 @@ public class MainActivity extends AppCompatActivity implements
             });
 
             // Center the camera on the current position and adjust to the desired zoom level
-            mGoogleMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
                 @Override
                 public void onMyLocationChange(Location lastKnownLocation) {
                     if (lastKnownLocation != null) {
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
                     }
                 }
             });
 
             // Reset the zoom level to street level when the MyLocation button is clicked
-            mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
                     mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
@@ -241,5 +270,14 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
         }
+    }
+
+    private void findCoffee() {
+        // Set center and zoom so that capitol hill is visible
+        LatLngBounds coffeeBounds = mCoffeeFetcher.addMarkers(this, mMap);
+
+        // Animate the camera to the coffee shop markers.
+        final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(coffeeBounds, 100 /* cameraPadding */);
+        mMap.animateCamera(update);
     }
 }
