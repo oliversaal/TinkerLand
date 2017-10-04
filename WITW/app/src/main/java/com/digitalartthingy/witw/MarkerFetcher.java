@@ -23,7 +23,8 @@ import com.amazon.geo.mapsv2.model.MarkerOptions;
  * 
  */
 public class MarkerFetcher {
-    final Map<Marker, CustomMarker> markers = new HashMap<Marker, CustomMarker>();
+    final Map<Marker, CustomMarker> mMarkers = new HashMap<Marker, CustomMarker>();
+    LatLngBounds.Builder mMarkerBounds = LatLngBounds.builder();
 
     private static final CustomMarker[] COFFEE_SHOPS_MARKERS = {
             new CustomMarker("Joe Bar Cafe", "810 East Roy Street",
@@ -43,14 +44,40 @@ public class MarkerFetcher {
                     "(206) 708-1210", new LatLng(47.625401, -122.320791))
     };
 
+    public void loadMarkersFromLocalStorage(AmazonMap map) {
+        // TODO: Load the markers from the local storage
+        // Iterate over the coffee shop markers and add them to the hash map
+        for (CustomMarker customMarker : COFFEE_SHOPS_MARKERS) {
+            addNewMarker(customMarker, map);
+        }
+    }
+
+    public void addNewMarker(CustomMarker customMarker, AmazonMap map) {
+        final BitmapDescriptor coffeeMarkerIcon = BitmapDescriptorFactory
+                .fromResource(R.drawable.coffeeshop);
+
+        MarkerOptions coffeeMarkerOptions = new MarkerOptions()
+                .icon(coffeeMarkerIcon)
+                .position(customMarker.getLocation())
+                .title(customMarker.getTitle())
+                .snippet(customMarker.getAddress());
+
+        // Update the map with the new marker and associate it with the custom marker
+        Marker mapMarker = map.addMarker(coffeeMarkerOptions);
+        mMarkers.put(mapMarker, customMarker);
+
+        // Extending the bounding box to include the new location
+        mMarkerBounds.include(customMarker.getLocation());
+    }
+
     public void removeMarkers() {
         // Remove the old markers, if any.
-        for (Marker marker : markers.keySet()) {
+        for (Marker marker : mMarkers.keySet()) {
             marker.remove();
         }
 
         // Clear our list of markers
-        markers.clear();
+        mMarkers.clear();
     }
 
     public LatLngBounds addMarkers(final Context context, AmazonMap map) {
@@ -62,32 +89,16 @@ public class MarkerFetcher {
 
             @Override
             public void onInfoWindowClick(Marker marker) {
-                if (markers.containsKey(marker)) {
-                    details.display(context, markers.get(marker));
+                if (mMarkers.containsKey(marker)) {
+                    details.display(context, mMarkers.get(marker));
                 }
             }
         });
 
-        // Add markers
-        final BitmapDescriptor coffeeMarkerIcon = BitmapDescriptorFactory
-                .fromResource(R.drawable.coffeeshop);
-        MarkerOptions coffeeMarkerOptions = new MarkerOptions()
-                .icon(coffeeMarkerIcon);
-
-        LatLngBounds.Builder markerBounds = LatLngBounds.builder();
-
-        // Iterate over the coffee shop markers and add them to the hash map
-        for (CustomMarker marker : COFFEE_SHOPS_MARKERS) {
-            coffeeMarkerOptions.position(marker.getLocation())
-                    .title(marker.getTitle()).snippet(marker.getAddress());
-            Marker newMarker = map.addMarker(coffeeMarkerOptions);
-
-            // Associate the marker with the shop.
-            markers.put(newMarker, marker);
-            markerBounds.include(marker.getLocation());
-        }
+        // Retrieve stored markers and add them to the map
+        loadMarkersFromLocalStorage(map);
 
         // Calculate the bounds that encapsulate all the markers
-        return markerBounds.build();
+        return mMarkerBounds.build();
     }
 }

@@ -197,6 +197,16 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
 
+            // Set up a handler for adding markers
+            mMap.setOnMapLongClickListener(new AmazonMap.OnMapLongClickListener() {
+                 @Override
+                 public void onMapLongClick(LatLng ll) {
+                     //TODO: Pop up a MarkerDetails dialog to collect information about new marker
+                     CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
+                     mCoffeeFetcher.addNewMarker(customMarker, mMap);
+                 }
+             });
+
             //
             // The following camera methods have been deprecated - we need to find alternates
             //
