@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.amazon.geo.mapsv2.*;
@@ -51,6 +52,11 @@ public class MainActivity extends AppCompatActivity implements
      * The persisted AmazonMap object
      */
     private AmazonMap mMap;
+
+    /**
+     * The list of coffee shop markers
+     */
+    private final MarkerFetcher mCoffeeFetcher = new MarkerFetcher();
 
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
@@ -180,6 +186,27 @@ public class MainActivity extends AppCompatActivity implements
             // The camera is now update with the current GPS location
             mMap.setMyLocationEnabled(true);
 
+            // Populate the coffee shop markers on the map when clicked
+            final ImageView coffeeImage = (ImageView)findViewById(R.id.find_coffee);
+            coffeeImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (mMap != null) {
+                        findCoffee();
+                    }
+                }
+            });
+
+            // Set up a handler for adding markers
+            mMap.setOnMapLongClickListener(new AmazonMap.OnMapLongClickListener() {
+                 @Override
+                 public void onMapLongClick(LatLng ll) {
+                     //TODO: Pop up a MarkerDetails dialog to collect information about new marker
+                     CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
+                     mCoffeeFetcher.addNewMarker(customMarker, mMap);
+                 }
+             });
+
             //
             // The following camera methods have been deprecated - we need to find alternates
             //
@@ -214,5 +241,14 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
         }
+    }
+
+    private void findCoffee() {
+        // Set center and zoom so that capitol hill is visible
+        LatLngBounds coffeeBounds = mCoffeeFetcher.addMarkers(this, mMap);
+
+        // Animate the camera to the coffee shop markers.
+        final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(coffeeBounds, 100 /* cameraPadding */);
+        mMap.animateCamera(update);
     }
 }
