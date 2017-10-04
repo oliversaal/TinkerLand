@@ -76,6 +76,7 @@ public class MarkerFetcher {
 
         LatLngBounds.Builder markerBounds = LatLngBounds.builder();
 
+        // Iterate over the coffee shop markers and add them to the hash map
         for (CustomMarker marker : COFFEE_SHOPS_MARKERS) {
             coffeeMarkerOptions.position(marker.getLocation())
                     .title(marker.getTitle()).snippet(marker.getAddress());

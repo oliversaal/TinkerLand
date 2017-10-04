@@ -39,72 +39,59 @@ public class MarkerDetails {
 
         final Intent callIntent = new Intent(Intent.ACTION_CALL);
         callIntent.setData(Uri.parse("tel:" + marker.getPhone()));
+
         PackageManager packageManager = mContext.getPackageManager();
-        if (packageManager.queryIntentActivities(callIntent,
-                PackageManager.MATCH_DEFAULT_ONLY).size() > 0) {
+        if (packageManager.queryIntentActivities(callIntent, PackageManager.MATCH_DEFAULT_ONLY).size() > 0) {
             mCallIntent = callIntent;
         }
 
         // Inflate the layout
-        final LayoutInflater inflater = (LayoutInflater) mContext
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View layout = inflater.inflate(R.layout.marker_details, null);
 
         // Add title
-        TextView textView = (TextView) layout.findViewById(R.id.marker_title);
+        TextView textView = (TextView)layout.findViewById(R.id.marker_title);
         textView.setText(marker.getTitle());
 
         // Add clickable phone number
-        textView = (TextView) layout.findViewById(R.id.marker_phone);
+        textView = (TextView)layout.findViewById(R.id.marker_phone);
         if (mCallIntent == null) {
             textView.setText(marker.getPhone());
         } else {
             final SpannableString phone = new SpannableString(marker.getPhone());
             phone.setSpan(new UnderlineSpan(), 0, phone.length(), 0);
+
+            // Hook up listener when user clicks on a phone number
             textView.setText(phone);
-            textView.setOnClickListener(phoneListener);
+            textView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (mCallIntent != null) {
+                        mContext.startActivity(mCallIntent);
+                    }
+                }
+            });
         }
 
         // Add address
-        textView = (TextView) layout.findViewById(R.id.marker_address);
+        textView = (TextView)layout.findViewById(R.id.marker_address);
         textView.setText(marker.getAddress());
 
-        // Add OK button
-        final Button dismissButton = (Button)layout.findViewById(R.id.dismiss_button);
-        dismissButton.setOnClickListener(dismissListener);
-
         // Convert dips to actual pixels
-        final float widthPx = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, POPUP_WIDTH_DIPS, mContext
-                        .getResources().getDisplayMetrics());
-        final float heightPx = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, POPUP_HEIGHT_DIPS, mContext
-                        .getResources().getDisplayMetrics());
+        final float widthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_WIDTH_DIPS, mContext.getResources().getDisplayMetrics());
+        final float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_HEIGHT_DIPS, mContext.getResources().getDisplayMetrics());
 
         // Display popup
-        mPopup = new PopupWindow(layout, (int) widthPx, (int) heightPx, true);
+        mPopup = new PopupWindow(layout, (int)widthPx, (int)heightPx, true);
         mPopup.showAtLocation(layout, Gravity.CENTER, 0, 0);
-    }
 
-    /**
-     * Call marker when user clicks on phone number
-     */
-    private final OnClickListener phoneListener = new OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            if (mCallIntent != null) {
-                mContext.startActivity(mCallIntent);
+        // Add OK button and dismiss popup when user clicks OK
+        final Button dismissButton = (Button)layout.findViewById(R.id.dismiss_button);
+        dismissButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                mPopup.dismiss();
             }
-        }
-    };
-
-    /**
-     * Dismiss popup when user clicks "OK"
-     */
-    private final OnClickListener dismissListener = new OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            mPopup.dismiss();
-        }
-    };
+        });
+    }
 }

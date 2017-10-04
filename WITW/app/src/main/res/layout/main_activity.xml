@@ -43,7 +43,6 @@
             android:layout_marginTop="1px"
             android:layout_gravity="bottom|center_horizontal"
             android:src="@drawable/capitolhillcoffee" />
-
     </FrameLayout>
 </LinearLayout>
 

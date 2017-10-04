@@ -14,8 +14,7 @@ public class CustomMarker {
     private final String phone;
     private final LatLng location;
 
-    public CustomMarker(final String title, final String address,
-            final String phone, final LatLng location) {
+    public CustomMarker(final String title, final String address, final String phone, final LatLng location) {
         this.title = title;
         this.address = address;
         this.phone = phone;

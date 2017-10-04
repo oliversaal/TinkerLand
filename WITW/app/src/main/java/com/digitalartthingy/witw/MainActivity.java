@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setMyLocationEnabled(true);
 
             // Populate the coffee shop markers on the map when clicked
-            final ImageView coffeeImage = (ImageView) findViewById(R.id.find_coffee);
+            final ImageView coffeeImage = (ImageView)findViewById(R.id.find_coffee);
             coffeeImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
@@ -237,11 +237,8 @@ public class MainActivity extends AppCompatActivity implements
         // Set center and zoom so that capitol hill is visible
         LatLngBounds coffeeBounds = mCoffeeFetcher.addMarkers(this, mMap);
 
-        // Ideally this would come from a dimens.xml file.
-        int cameraPadding = 100;
-
         // Animate the camera to the coffee shop markers.
-        final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(coffeeBounds, cameraPadding);
+        final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(coffeeBounds, 100 /* cameraPadding */);
         mMap.animateCamera(update);
     }
 }
