@@ -39,6 +39,7 @@
             android:contentDescription="@string/find_coffee"
             android:layout_width="64dp"
             android:layout_height="64dp"
+            android:layout_marginStart="1px"
             android:layout_marginLeft="1px"
             android:layout_marginTop="1px"
             android:layout_gravity="bottom|center_horizontal"
