@@ -66,9 +66,10 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleMap mMap;
 
     /**
-     * The list of coffee shop markers
+     * The list of map markers
      */
-    private final MarkerFetcher mCoffeeFetcher = new MarkerFetcher();
+    private MarkerStorage mMarkerStorage;
+
 
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
@@ -161,6 +162,15 @@ public class MainActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.action_map:
                 return true;
+            case R.id.action_toggle_location_updates:
+                if (mMap != null) {
+                    boolean isEnabled = mMap.isMyLocationEnabled();
+                    mMap.setMyLocationEnabled(!isEnabled);
+                }
+                return true;
+            case R.id.action_reset_markers:
+                mMarkerStorage.removeMarkers();
+                return true;
             case R.id.action_privacy:
                 return loadUrl(PRIVACY_POLICY_URL);
             case R.id.action_about:
@@ -195,6 +205,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @SuppressWarnings("SameReturnValue")
     private boolean loadUrl(String url) {
+        Log.i(TAG, "Triggered loadUrl");
+
         mWebView.loadUrl(url);
         mWebView.setVisibility(View.VISIBLE);
 
@@ -206,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onMapReady(GoogleMap map) {
-        Log.i(TAG, "Triggered OnMapReady");
+        Log.i(TAG, "Triggered onMapReady");
 
         // Retain the GoogleMap object since we've using it with new coordinates
         if (mMap == null) {
@@ -215,14 +227,15 @@ public class MainActivity extends AppCompatActivity implements
             // The camera is now update with the current GPS location
             mMap.setMyLocationEnabled(true);
 
+            // Initialize marker storage utility to retrieve markers
+            mMarkerStorage = new MarkerStorage(this, mMap);
+
             // Populate the coffee shop markers on the map when clicked
             final ImageView coffeeImage = (ImageView)findViewById(R.id.find_coffee);
             coffeeImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    if (mMap != null) {
-                        findCoffee();
-                    }
+                mMarkerStorage.saveMarkersToLocalStorage();
                 }
             });
 
@@ -230,9 +243,9 @@ public class MainActivity extends AppCompatActivity implements
             map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                  @Override
                  public void onMapLongClick(LatLng ll) {
-                     //TODO: Pop up a MarkerDetails dialog to collect information about new marker
-                     CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
-                     mCoffeeFetcher.addNewMarker(customMarker, mMap);
+                 //TODO: Pop up a MarkerDetails dialog to collect information about new marker
+                 CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
+                 mMarkerStorage.addNewMarker(customMarker);
                  }
              });
 
@@ -244,10 +257,10 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
-                    // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
-                    if (cameraPosition.zoom != mZoomLevel) {
-                        mZoomLevel = cameraPosition.zoom;
-                    }
+                // TODO: Once we move to higher minSDK then we can use setMaxZoomPreference instead
+                if (cameraPosition.zoom != mZoomLevel) {
+                    mZoomLevel = cameraPosition.zoom;
+                }
                 }
             });
 
@@ -255,9 +268,9 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
                 @Override
                 public void onMyLocationChange(Location lastKnownLocation) {
-                    if (lastKnownLocation != null) {
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
-                    }
+                if (lastKnownLocation != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), mZoomLevel));
+                }
                 }
             });
 
@@ -265,16 +278,22 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                 @Override
                 public boolean onMyLocationButtonClick() {
-                    mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
-                    return false;
+                mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
+
+                // Temporary location to invoke populating the coffee shop markers
+                findCoffee();
+
+                return false;
                 }
             });
         }
     }
 
     private void findCoffee() {
+        Log.i(TAG, "Triggered findCoffee");
+
         // Set center and zoom so that capitol hill is visible
-        LatLngBounds coffeeBounds = mCoffeeFetcher.addMarkers(this, mMap);
+        LatLngBounds coffeeBounds = mMarkerStorage.displayMarkers();
 
         // Animate the camera to the coffee shop markers.
         final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(coffeeBounds, 100 /* cameraPadding */);

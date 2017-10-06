@@ -12,13 +12,23 @@
         android:title="@string/menu_map"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_toggle_location_updates"
+        android:orderInCategory="102"
+        android:title="@string/menu_toggle_location_updates"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_reset_markers"
+        android:orderInCategory="103"
+        android:title="@string/menu_reset_markers"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_privacy"
-        android:orderInCategory="101"
+        android:orderInCategory="104"
         android:title="@string/menu_privacy"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_about"
-        android:orderInCategory="102"
+        android:orderInCategory="105"
         android:title="@string/menu_about"
         app:showAsAction="never" />
     <item

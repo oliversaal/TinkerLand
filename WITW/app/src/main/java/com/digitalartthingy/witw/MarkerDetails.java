@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,17 +25,21 @@ import android.widget.TextView;
  *
  */
 public class MarkerDetails {
-    private PopupWindow mPopup;
-    private Context mContext;
-    private Intent mCallIntent;
+    private static final String TAG = "MarkerDetails";
 
     private static final int POPUP_WIDTH_DIPS = 270;
     private static final int POPUP_HEIGHT_DIPS = 350;
+
+    private PopupWindow mPopup;
+    private Context mContext;
+    private Intent mCallIntent;
 
     /**
      * Display popup with marker details
      */
     public final void display(final Context context, final CustomMarker marker) {
+        Log.i(TAG, "Triggered display");
+
         mContext = context;
 
         final Intent callIntent = new Intent(Intent.ACTION_CALL);
