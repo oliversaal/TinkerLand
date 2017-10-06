@@ -2,15 +2,16 @@
  *       Copyright (C) 2017 Digital Art Thingy Inc.
 -->
 <resources>
-    <string name="app_name">Where in the world ...</string>
+    <string name="app_name">Where in the world &#8230;</string>
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>
     <string name="last_update_time_label">Last location update time</string>
     <string name="menu_map">Map</string>
+    <string name="menu_toggle_location_updates">Toggle Location Updates</string>
+    <string name="menu_reset_markers">Reset Markers</string>
     <string name="menu_privacy">Privacy Policy</string>
     <string name="menu_about">About</string>
     <string name="menu_debug">Raw Data</string>
-
     <string name="find_coffee">Find Coffee</string>
     <string name="ok">OK</string>
 </resources>
