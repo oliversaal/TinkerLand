@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements
             // The camera is now update with the current GPS location
             mMap.setMyLocationEnabled(true);
 
-            // Initialize our fetcher to retrieve markers
+            // Initialize marker storage utility to retrieve markers
             mMarkerStorage = new MarkerStorage(this, mMap);
 
             // Populate the coffee shop markers on the map when clicked

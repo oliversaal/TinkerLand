@@ -21,6 +21,7 @@ import com.amazon.geo.mapsv2.model.LatLng;
 import com.amazon.geo.mapsv2.model.LatLngBounds;
 import com.amazon.geo.mapsv2.model.Marker;
 import com.amazon.geo.mapsv2.model.MarkerOptions;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -53,14 +54,18 @@ public class MarkerStorage {
         Log.i(TAG, "Triggered loadMarkersFromLocalStorage");
 
         try {
+            // Gson allow us to serialize and deserialize our custom objects so that it can be
+            // saved to the local storage
             Gson gson = new Gson();
 
             String json = mSharedPreferences.getString(PREF_MARKER_KEY, null);
             if (json != null) {
+                // gson.fromJson needs to know the type of data to deseriaize
+                // I had to research this online and I found a simple example on SO.
                 Type listType = new TypeToken<ArrayList<CustomMarker>>(){}.getType();
-                 List<CustomMarker> listCustomMarkers = gson.fromJson(json, listType);
+                List<CustomMarker> listCustomMarkers = gson.fromJson(json, listType);
 
-                // Iterate over the retrieved markers and add them to the hash map
+                // Iterate over the retrieved markers and add them to the map
                 for (CustomMarker customMarker : listCustomMarkers) {
                     addNewMarker(customMarker);
                 }
@@ -74,8 +79,13 @@ public class MarkerStorage {
         Log.i(TAG, "Triggered saveMarkersToLocalStorage");
 
         try {
+            // Gson allow us to serialize and deserialize our custom objects so that it can be
+            // saved to the local storage
             Gson gson = new Gson();
 
+            // JSON gives us a string representation that can represent simple primitive types
+            // as well as an array of primitive types. In this case our List<CustomMarkers> is
+            // represented as a JSON string and we need to convert it back to a list.
             String json = gson.toJson(mMarkers.values().toArray());
             if (json != null) {
                 SharedPreferences.Editor preferencesEditor = mSharedPreferences.edit();
