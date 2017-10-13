@@ -235,8 +235,6 @@ public class MainActivity extends AppCompatActivity implements
             markerImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    mMarkerStorage.saveMarkersToLocalStorage();
-
                     // Display all markers on the map
                     findMarkers();
                 }

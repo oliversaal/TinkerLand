@@ -113,6 +113,10 @@ public class MarkerStorage {
 
         // Extending the bounding box to include the new location
         mMarkerBounds.include(customMarker.getLocation());
+
+        // TODO: This seems inefficient to save the entire map for each new addition - maybe batch them
+        // Each new marker causes us to save it to storage
+        saveMarkersToLocalStorage();
     }
 
     public void removeMarkers() {
