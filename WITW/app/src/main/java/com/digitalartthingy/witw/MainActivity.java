@@ -230,12 +230,15 @@ public class MainActivity extends AppCompatActivity implements
             // Initialize marker storage utility to retrieve markers
             mMarkerStorage = new MarkerStorage(this, mMap);
 
-            // Populate the coffee shop markers on the map when clicked
-            final ImageView coffeeImage = (ImageView)findViewById(R.id.find_coffee);
-            coffeeImage.setOnClickListener(new View.OnClickListener() {
+            // Populate the markers on the map when clicked
+            final ImageView markerImage = (ImageView)findViewById(R.id.find_coffee);
+            markerImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                mMarkerStorage.saveMarkersToLocalStorage();
+                    mMarkerStorage.saveMarkersToLocalStorage();
+
+                    // Display all markers on the map
+                    findMarkers();
                 }
             });
 
@@ -280,23 +283,20 @@ public class MainActivity extends AppCompatActivity implements
                 public boolean onMyLocationButtonClick() {
                 mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
 
-                // Temporary location to invoke populating the coffee shop markers
-                findCoffee();
-
                 return false;
                 }
             });
         }
     }
 
-    private void findCoffee() {
-        Log.i(TAG, "Triggered findCoffee");
+    private void findMarkers() {
+        Log.i(TAG, "Triggered findMarkers");
 
-        // Set center and zoom so that capitol hill is visible
-        LatLngBounds coffeeBounds = mMarkerStorage.displayMarkers();
+        // Set center and zoom so that all applicable markers are visible
+        LatLngBounds markerBounds = mMarkerStorage.displayMarkers();
 
-        // Animate the camera to the coffee shop markers.
-        final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(coffeeBounds, 100 /* cameraPadding */);
+        // Animate the camera to show all visible markers.
+        final CameraUpdate update = CameraUpdateFactory.newLatLngBounds(markerBounds, 100 /* cameraPadding */);
         mMap.animateCamera(update);
     }
 }
