@@ -5,6 +5,7 @@ package com.digitalartthingy.witw;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -70,12 +71,16 @@ public class MainActivity extends AppCompatActivity implements
      */
     private MarkerStorage mMarkerStorage;
 
-
     /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
      */
     private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
     private static float mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
+
+    /**
+     * The global context variable
+     */
+    private Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -224,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements
         if (mMap == null) {
             mMap = map;
 
+            mContext = this;
+
             // The camera is now update with the current GPS location
             mMap.setMyLocationEnabled(true);
 
@@ -231,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements
             mMarkerStorage = new MarkerStorage(this, mMap);
 
             // Populate the markers on the map when clicked
-            final ImageView markerImage = (ImageView)findViewById(R.id.find_coffee);
+            final ImageView markerImage = (ImageView)findViewById(R.id.find_gatsby);
             markerImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
@@ -244,9 +251,13 @@ public class MainActivity extends AppCompatActivity implements
             map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                  @Override
                  public void onMapLongClick(LatLng ll) {
-                 //TODO: Pop up a MarkerDetails dialog to collect information about new marker
-                 CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
-                 mMarkerStorage.addNewMarker(customMarker);
+                 CustomMarker customMarker = new CustomMarker(ll);
+
+                // Pop up a MarkerDetails dialog to collect information about new marker
+                MarkerDetails details = new MarkerDetails();
+                details.enterDetails(mContext, customMarker);
+
+                mMarkerStorage.addNewMarker(customMarker);
                  }
              });
 

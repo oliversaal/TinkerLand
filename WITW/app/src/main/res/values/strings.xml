@@ -12,6 +12,8 @@
     <string name="menu_privacy">Privacy Policy</string>
     <string name="menu_about">About</string>
     <string name="menu_debug">Raw Data</string>
-    <string name="find_coffee">Find Coffee</string>
+    <string name="find_gatsby">Find Gatsby</string>
     <string name="ok">OK</string>
+        <string name="submit">SUBMIT</string>
+
 </resources>

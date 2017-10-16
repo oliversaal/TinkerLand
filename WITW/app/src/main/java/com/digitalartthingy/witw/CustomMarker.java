@@ -9,16 +9,13 @@ import com.google.android.gms.maps.model.LatLng;
  * Represents a custom marker.
  */
 public class CustomMarker {
-    private final String title;
-    private final String address;
-    private final String phone;
+    private String title;
+    private String address;
+    private String phone;
     private final LatLng location;
 
-    public CustomMarker(final String title, final String address, final String phone, final LatLng location) {
-        this.title = title;
-        this.address = address;
-        this.phone = phone;
-        this.location = location;
+    public CustomMarker(final LatLng location) {
+         this.location = location;
     }
 
     public String getTitle() {
@@ -36,4 +33,10 @@ public class CustomMarker {
     public LatLng getLocation() {
         return location;
     }
+
+    public void setmarkerDetails(String title, String phone) {
+        this.title = title;
+        this.phone = phone;
+    }
+
 }

@@ -35,15 +35,15 @@
             tools:context="com.digitalartthingy.witw.MainActivity" />
 
         <ImageView
-            android:id="@+id/find_coffee"
-            android:contentDescription="@string/find_coffee"
+            android:id="@+id/find_gatsby"
+            android:contentDescription="@string/find_gatsby"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_marginStart="1px"
             android:layout_marginLeft="1px"
             android:layout_marginTop="1px"
             android:layout_gravity="bottom|center_horizontal"
-            android:src="@drawable/capitolhillcoffee" />
+            android:src="@drawable/gatsbybutton" />
     </FrameLayout>
 </LinearLayout>
 

@@ -41,6 +41,9 @@ public class MarkerStorage {
     private final Map<Marker, CustomMarker> mMarkers = new HashMap<Marker, CustomMarker>();
     private final LatLngBounds.Builder mMarkerBounds = LatLngBounds.builder();
 
+    private MarkerDetails details = new MarkerDetails();
+
+
     public MarkerStorage(final Context context, GoogleMap map) {
         mContext = context;
         mMap = map;
@@ -98,17 +101,17 @@ public class MarkerStorage {
     public void addNewMarker(final CustomMarker customMarker) {
         Log.i(TAG, "Triggered addNewMarker");
 
-        final BitmapDescriptor coffeeMarkerIcon = BitmapDescriptorFactory
-                .fromResource(R.drawable.coffeeshop);
+        final BitmapDescriptor markerIcon = BitmapDescriptorFactory
+                .fromResource(R.drawable.gastbyflag);
 
-        MarkerOptions coffeeMarkerOptions = new MarkerOptions()
-                .icon(coffeeMarkerIcon)
+        MarkerOptions options = new MarkerOptions()
+                .icon(markerIcon)
                 .position(customMarker.getLocation())
                 .title(customMarker.getTitle())
                 .snippet(customMarker.getAddress());
 
         // Update the map with the new marker and associate it with the custom marker
-        Marker mapMarker = mMap.addMarker(coffeeMarkerOptions);
+        Marker mapMarker = mMap.addMarker(options);
         mMarkers.put(mapMarker, customMarker);
 
         // Extending the bounding box to include the new location
@@ -141,7 +144,6 @@ public class MarkerStorage {
         removeMarkers();
 
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            final MarkerDetails details = new MarkerDetails();
 
             @Override
             public void onInfoWindowClick(Marker marker) {

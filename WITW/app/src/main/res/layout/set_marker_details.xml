@@ -1,0 +1,75 @@
+<!--
+ *       Copyright (C) 2017 Digital Art Thingy Inc.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup_set_marker"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#60A0A0" >
+
+    <ImageView
+        android:id="@+id/mdetails_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20sp" />
+
+        <TextView
+        android:id="@+id/info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/mdetails_icon"
+        android:text="You are about to create a new marker." />
+
+    <TextView
+        android:id="@+id/name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/info_text"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="Enter Location's Name:"
+        android:layout_marginTop="20sp" />
+
+
+    <EditText
+        android:id="@+id/mdetails_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/name_text"
+        android:layout_toRightOf="@+id/name_text"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:inputType="textPersonName"/>
+
+    <TextView
+        android:id="@+id/phone_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/name_text"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="Enter Location Phone#:" />
+
+    <EditText
+        android:id="@+id/mdetails_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/phone_text"
+        android:layout_alignBaseline="@+id/phone_text"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:inputType="phone" />
+
+    <Button android:id="@+id/submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/phone_text"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="@string/submit" />
+
+</RelativeLayout>
