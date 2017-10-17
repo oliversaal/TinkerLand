@@ -52,6 +52,12 @@ public class MainActivity extends AppCompatActivity implements
     private static int debugCount = 0;
 
     /**
+     * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
+     */
+    private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
+    private static float mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
+
+    /**
      * This web view is used to display web content such as the privacy policy
      */
     private WebView mWebView;
@@ -70,12 +76,6 @@ public class MainActivity extends AppCompatActivity implements
      * The list of map markers
      */
     private MarkerStorage mMarkerStorage;
-
-    /**
-     * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
-     */
-    private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
-    private static float mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
 
     /**
      * The global context variable
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setMyLocationEnabled(true);
 
             // Initialize marker storage utility to retrieve markers
-            mMarkerStorage = new MarkerStorage(this, mMap);
+            mMarkerStorage = new MarkerStorage(mContext, mMap);
 
             // Populate the markers on the map when clicked
             final ImageView markerImage = (ImageView)findViewById(R.id.find_gatsby);
@@ -251,12 +251,13 @@ public class MainActivity extends AppCompatActivity implements
             map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                  @Override
                  public void onMapLongClick(LatLng ll) {
-                 CustomMarker customMarker = new CustomMarker(ll);
+                CustomMarker customMarker = new CustomMarker(ll);
 
                 // Pop up a MarkerDetails dialog to collect information about new marker
-                MarkerDetails details = new MarkerDetails();
-                details.enterDetails(mContext, customMarker);
+                MarkerDetails details = new MarkerDetails(mContext, mMarkerStorage);
+                details.enterDetails(customMarker);
 
+                // Display the new marker on the map and add it to the marker collection
                 mMarkerStorage.addNewMarker(customMarker);
                  }
              });

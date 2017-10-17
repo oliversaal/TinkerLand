@@ -36,13 +36,18 @@ public class MarkerDetails {
     private Context mContext;
     private Intent mCallIntent;
 
+    private UserSuppliedDetails mUserSuppliedDetails;
+
+    public MarkerDetails(Context context, UserSuppliedDetails usd) {
+        mContext = context;
+        mUserSuppliedDetails = usd;
+    }
+
     /**
      * Display popup to display marker details
      */
-    public final void display(final Context context, final CustomMarker marker) {
+    public final void display(final CustomMarker marker) {
         Log.i(TAG, "Triggered display");
-
-        mContext = context;
 
         final Intent callIntent = new Intent(Intent.ACTION_CALL);
         callIntent.setData(Uri.parse("tel:" + marker.getPhone()));
@@ -80,10 +85,6 @@ public class MarkerDetails {
             });
         }
 
-        // Add address
-        textView = (TextView)layout.findViewById(R.id.marker_address);
-        textView.setText(marker.getAddress());
-
         // Convert dips to actual pixels
         final float widthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_WIDTH_DIPS, mContext.getResources().getDisplayMetrics());
         final float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_HEIGHT_DIPS, mContext.getResources().getDisplayMetrics());
@@ -105,10 +106,8 @@ public class MarkerDetails {
     /**
      * Duplicated the popup above for user to input marker details
      */
-    public final void enterDetails(final Context context, final CustomMarker marker) {
+    public final void enterDetails(final CustomMarker marker) {
         Log.i(TAG, "Triggered enter details");
-
-        mContext = context;
 
         final Intent callIntent = new Intent(Intent.ACTION_CALL);
 
@@ -137,11 +136,14 @@ public class MarkerDetails {
                 mPopup.dismiss();
 
                 // Fetch entered text
-                EditText markerName = (EditText) layout.findViewById(R.id.mdetails_name);
-                EditText markerPhone = (EditText) layout.findViewById(R.id.mdetails_phone);
+                EditText markerName = (EditText)layout.findViewById(R.id.marker_details_name);
+                EditText markerPhone = (EditText)layout.findViewById(R.id.marker_details_phone);
 
                 // Set marker details
-                marker.setmarkerDetails(markerName.getText().toString(), markerPhone.getText().toString());
+                marker.setMarkerDetails(markerName.getText().toString(), markerPhone.getText().toString());
+
+                // Signal that the user has supplied information
+                mUserSuppliedDetails.signalCompletion();
             }
         });
     }
