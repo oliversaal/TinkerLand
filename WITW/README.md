@@ -1,67 +1,53 @@
-Basic Location Sample
+Where in the world
 =====================
 
-Demonstrates use of the Google Play services Location API to retrieve the last
-known location for a device.
+Demonstrates use of the Google Play services Location API and Shared Preferences to retrieve user
+data from local storage.
 
 Introduction
 ============
 
-This sample shows a simple way of getting a device's last known location, which
+This app shows a simple way of getting a device's last known location, which
 is usually equivalent to the device's current location.
 The accuracy of the location returned is based on the location
 permissions you've requested and the location sensors that are currently active
-for the device.
+for the device. It also demonstrates the use of Android's SharedPreferences for data storage.
+Android provides several options for you to save persistent application data. SharedPreferences
+store private primitive data in key-value pairs.
 
-To run this sample, **location must be enabled**.
+To run this app, **location must be enabled**.
 
-This sample uses
+This app uses
 [Google Play services (GoogleApiClient)](ihttps://developer.android.com/reference/com/google/android/gms/common/api/GoogleApiClient.html)
-and the
-[FusedLocationApi] (https://developer.android.com/reference/com/google/android/gms/location/LocationServices.html).
-
-To run this sample, **location must be enabled**.
+[Android (SharedPreferences)](ihttps://developer.android.com/reference/android/content/SharedPreferences.html)
 
 Prerequisites
 --------------
 
-- Android API Level >v9
-- Android Build Tools >v21
+- Android API Level >v11
+- Android Build Tools >v25
 - Google Support Repository
 
 Getting Started
 ---------------
 
-This sample uses the Gradle build system. To build this project, use the
+This app uses the Gradle build system. To build this project, use the
 "gradlew build" command or use "Import Project" in Android Studio.
 
 Support
 -------
 
 - Stack Overflow: http://stackoverflow.com/questions/tagged/google-play-services
+- Android: http://developer.android.com/guide/topics/data/data-storage.html#pref
+- Digital Art Thingy: http://digitalartthingy.com
 
-If you've found an error in this sample, please file an issue:
-https://github.com/googlesamples/android-play-location/issues
+If you've found an error in this app, please file an issue:
+https://github.com/oliversaal/TinkerLand
 
-Patches are encouraged, and may be submitted according to the instructions in
-CONTRIBUTING.md.
+Patches are encouraged, and may be submitted via github.
 
 License
 -------
 
-Copyright 2014 Google, Inc.
+Copyright (C) 2017 Digital Art Thingy Inc.
 
-Licensed to the Apache Software Foundation (ASF) under one or more contributor
-license agreements.  See the NOTICE file distributed with this work for
-additional information regarding copyright ownership.  The ASF licenses this
-file to you under the Apache License, Version 2.0 (the "License"); you may not
-use this file except in compliance with the License.  You may obtain a copy of
-the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-License for the specific language governing permissions and limitations under
-the License.

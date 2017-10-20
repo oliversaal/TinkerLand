@@ -28,7 +28,7 @@ import com.google.gson.reflect.TypeToken;
  * Store and retrieves marker details
  * 
  */
-public class MarkerStorage {
+public class MarkerStorage implements UserSuppliedDetails {
     private static final String TAG = "MarkerStorage";
     private static final String PREF_FILE_NAME = "Markers";
     private static final String PREF_MARKER_KEY = "WITWMarkers";
@@ -41,11 +41,15 @@ public class MarkerStorage {
     private final Map<Marker, CustomMarker> mMarkers = new HashMap<Marker, CustomMarker>();
     private final LatLngBounds.Builder mMarkerBounds = LatLngBounds.builder();
 
+    private MarkerDetails mDetails;
+
     public MarkerStorage(final Context context, GoogleMap map) {
         mContext = context;
         mMap = map;
 
         mSharedPreferences = mContext.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
+
+        mDetails = new MarkerDetails(mContext, this);
     }
 
     private void loadMarkersFromLocalStorage() {
@@ -58,7 +62,7 @@ public class MarkerStorage {
 
             String json = mSharedPreferences.getString(PREF_MARKER_KEY, null);
             if (json != null) {
-                // gson.fromJson needs to know the type of data to deseriaize
+                // gson.fromJson needs to know the type of data to deserialize
                 // I had to research this online and I found a simple example on SO.
                 Type listType = new TypeToken<ArrayList<CustomMarker>>(){}.getType();
                 List<CustomMarker> listCustomMarkers = gson.fromJson(json, listType);
@@ -98,25 +102,20 @@ public class MarkerStorage {
     public void addNewMarker(final CustomMarker customMarker) {
         Log.i(TAG, "Triggered addNewMarker");
 
-        final BitmapDescriptor coffeeMarkerIcon = BitmapDescriptorFactory
-                .fromResource(R.drawable.coffeeshop);
+        final BitmapDescriptor markerIcon = BitmapDescriptorFactory
+                .fromResource(R.drawable.marker);
 
-        MarkerOptions coffeeMarkerOptions = new MarkerOptions()
-                .icon(coffeeMarkerIcon)
+        MarkerOptions options = new MarkerOptions()
+                .icon(markerIcon)
                 .position(customMarker.getLocation())
-                .title(customMarker.getTitle())
-                .snippet(customMarker.getAddress());
+                .title(customMarker.getTitle());
 
         // Update the map with the new marker and associate it with the custom marker
-        Marker mapMarker = mMap.addMarker(coffeeMarkerOptions);
+        Marker mapMarker = mMap.addMarker(options);
         mMarkers.put(mapMarker, customMarker);
 
         // Extending the bounding box to include the new location
         mMarkerBounds.include(customMarker.getLocation());
-
-        // TODO: This seems inefficient to save the entire map for each new addition - maybe batch them
-        // Each new marker causes us to save it to storage
-        saveMarkersToLocalStorage();
     }
 
     public void removeMarkers() {
@@ -141,12 +140,10 @@ public class MarkerStorage {
         removeMarkers();
 
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            final MarkerDetails details = new MarkerDetails();
-
             @Override
             public void onInfoWindowClick(Marker marker) {
                 if (mMarkers.containsKey(marker)) {
-                    details.display(mContext, mMarkers.get(marker));
+                    mDetails.display(mMarkers.get(marker));
                 }
             }
         });
@@ -163,5 +160,11 @@ public class MarkerStorage {
 
         // Calculate the bounds that encapsulate all the markers
         return mMarkerBounds.build();
+    }
+
+    @Override
+    public void signalCompletion() {
+        // TODO: This seems inefficient to save the entire map for each new addition - maybe batch them
+        saveMarkersToLocalStorage();
     }
 }
