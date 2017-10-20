@@ -40,12 +40,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final int MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION = 101;
 
     /**
-     * Debug raw data
-     */
-    private static final int ACTIVATE_DEBUG_KEY_PRESSES = 10;
-    private static int debugCount = 0;
-
-    /**
      * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
      */
     private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
