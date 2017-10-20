@@ -5,6 +5,8 @@ package com.digitalartthingy.witw;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -38,6 +40,12 @@ public class MainActivity extends AppCompatActivity implements
     private static final int MY_PERMISSIONS_REQUEST_READ_FINE_LOCATION = 101;
 
     /**
+     * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
+     */
+    private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
+    private static float mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
+
+    /**
      * This web view is used to display web content such as the privacy policy
      */
     private WebView mWebView;
@@ -57,12 +65,10 @@ public class MainActivity extends AppCompatActivity implements
      */
     private MarkerStorage mMarkerStorage;
 
-
     /**
-     * The zoom level needs to be remembered if the user decides to change it (default 15.0f - street level)
+     * The global context variable
      */
-    private static final float DEFAULT_ZOOM_LEVEL_PREFERENCE = 15.0f;
-    private static float mZoomLevel = DEFAULT_ZOOM_LEVEL_PREFERENCE;
+    private Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,14 +200,16 @@ public class MainActivity extends AppCompatActivity implements
         if (mMap == null) {
             mMap = map;
 
+            mContext = this;
+
             // The camera is now update with the current GPS location
             mMap.setMyLocationEnabled(true);
 
             // Initialize marker storage utility to retrieve markers
-            mMarkerStorage = new MarkerStorage(this, mMap);
+            mMarkerStorage = new MarkerStorage(mContext, mMap);
 
             // Populate the markers on the map when clicked
-            final ImageView markerImage = (ImageView)findViewById(R.id.find_coffee);
+            final ImageView markerImage = (ImageView)findViewById(R.id.find_gatsby);
             markerImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
@@ -214,9 +222,14 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setOnMapLongClickListener(new AmazonMap.OnMapLongClickListener() {
                  @Override
                  public void onMapLongClick(LatLng ll) {
-                 //TODO: Pop up a MarkerDetails dialog to collect information about new marker
-                 CustomMarker customMarker = new CustomMarker("newTitle", "newAddress", "newPhone", ll);
-                 mMarkerStorage.addNewMarker(customMarker);
+                CustomMarker customMarker = new CustomMarker(ll);
+
+                // Pop up a MarkerDetails dialog to collect information about new marker
+                MarkerDetails details = new MarkerDetails(mContext, mMarkerStorage);
+                details.enterDetails(customMarker);
+
+                // Display the new marker on the map and add it to the marker collection
+                mMarkerStorage.addNewMarker(customMarker);
                  }
              });
 

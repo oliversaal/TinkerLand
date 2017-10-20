@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -34,13 +35,18 @@ public class MarkerDetails {
     private Context mContext;
     private Intent mCallIntent;
 
-    /**
-     * Display popup with marker details
-     */
-    public final void display(final Context context, final CustomMarker marker) {
-        Log.i(TAG, "Triggered display");
+    private UserSuppliedDetails mUserSuppliedDetails;
 
+    public MarkerDetails(Context context, UserSuppliedDetails usd) {
         mContext = context;
+        mUserSuppliedDetails = usd;
+    }
+
+    /**
+     * Display marker with details
+     */
+    public final void display(final CustomMarker marker) {
+        Log.i(TAG, "Triggered display");
 
         final Intent callIntent = new Intent(Intent.ACTION_CALL);
         callIntent.setData(Uri.parse("tel:" + marker.getPhone()));
@@ -78,10 +84,6 @@ public class MarkerDetails {
             });
         }
 
-        // Add address
-        textView = (TextView)layout.findViewById(R.id.marker_address);
-        textView.setText(marker.getAddress());
-
         // Convert dips to actual pixels
         final float widthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_WIDTH_DIPS, mContext.getResources().getDisplayMetrics());
         final float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_HEIGHT_DIPS, mContext.getResources().getDisplayMetrics());
@@ -96,6 +98,51 @@ public class MarkerDetails {
             @Override
             public void onClick(final View v) {
                 mPopup.dismiss();
+            }
+        });
+    }
+
+    /**
+     * Duplicated the popup above for user to input marker details
+     */
+    public final void enterDetails(final CustomMarker marker) {
+        Log.i(TAG, "Triggered enter details");
+
+        final Intent callIntent = new Intent(Intent.ACTION_CALL);
+
+        PackageManager packageManager = mContext.getPackageManager();
+        if (packageManager.queryIntentActivities(callIntent, PackageManager.MATCH_DEFAULT_ONLY).size() > 0) {
+            mCallIntent = callIntent;
+        }
+
+        // Inflate the layout
+        final LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View layout = inflater.inflate(R.layout.set_marker_details, null);
+
+        // Convert dips to actual pixels
+        final float widthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_WIDTH_DIPS, mContext.getResources().getDisplayMetrics());
+        final float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_HEIGHT_DIPS, mContext.getResources().getDisplayMetrics());
+
+        // Display popup
+        mPopup = new PopupWindow(layout, (int)widthPx, (int)heightPx, true);
+        mPopup.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+        // Dismiss popup when user clicks SUBMIT and set the marker's details
+        final Button submitButton = (Button)layout.findViewById(R.id.submit_button);
+        submitButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                mPopup.dismiss();
+
+                // Fetch entered text
+                EditText markerName = (EditText)layout.findViewById(R.id.marker_details_name);
+                EditText markerPhone = (EditText)layout.findViewById(R.id.marker_details_phone);
+
+                // Set marker details
+                marker.setMarkerDetails(markerName.getText().toString(), markerPhone.getText().toString());
+
+                // Signal that the user has supplied information
+                mUserSuppliedDetails.signalCompletion();
             }
         });
     }
