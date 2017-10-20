@@ -14,6 +14,9 @@
     <string name="menu_debug">Raw Data</string>
     <string name="find_gatsby">Find Gatsby</string>
     <string name="ok">OK</string>
-        <string name="submit">SUBMIT</string>
+    <string name="submit">SUBMIT</string>
+    <string name="create_new_marker_info">You are about to create a new marker.</string>
+    <string name="enter_location_name">Enter Location Name:</string>
+    <string name="enter_location_contact">Enter Location Contact#:</string>
 
 </resources>

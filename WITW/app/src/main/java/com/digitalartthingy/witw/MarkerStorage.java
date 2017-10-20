@@ -103,7 +103,7 @@ public class MarkerStorage implements UserSuppliedDetails {
         Log.i(TAG, "Triggered addNewMarker");
 
         final BitmapDescriptor markerIcon = BitmapDescriptorFactory
-                .fromResource(R.drawable.gastbyflag);
+                .fromResource(R.drawable.marker);
 
         MarkerOptions options = new MarkerOptions()
                 .icon(markerIcon)

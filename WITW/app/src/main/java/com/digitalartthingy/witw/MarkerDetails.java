@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.v7.widget.AppCompatEditText;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -44,7 +43,7 @@ public class MarkerDetails {
     }
 
     /**
-     * Display popup to display marker details
+     * Display marker with details
      */
     public final void display(final CustomMarker marker) {
         Log.i(TAG, "Triggered display");
