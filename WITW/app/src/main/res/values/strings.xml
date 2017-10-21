@@ -17,6 +17,5 @@
     <string name="submit">SUBMIT</string>
     <string name="create_new_marker_info">You are about to create a new marker.</string>
     <string name="enter_location_name">Enter Location Name:</string>
-    <string name="enter_location_contact">Enter Location Contact#:</string>
-
+    <string name="enter_location_contact">Enter Contact Number:</string>
 </resources>
