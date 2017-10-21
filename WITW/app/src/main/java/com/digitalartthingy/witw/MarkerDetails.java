@@ -123,8 +123,8 @@ public class MarkerDetails {
         final float widthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_WIDTH_DIPS, mContext.getResources().getDisplayMetrics());
         final float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POPUP_HEIGHT_DIPS, mContext.getResources().getDisplayMetrics());
 
-        // Display popup
-        mPopup = new PopupWindow(layout, (int)widthPx, (int)heightPx, true);
+        // Display popup - overriding heightPx so we can show our custom dialog in its entirety
+        mPopup = new PopupWindow(layout, (int)widthPx, 420 /* heightPx */, true);
         mPopup.showAtLocation(layout, Gravity.CENTER, 0, 0);
 
         // Dismiss popup when user clicks SUBMIT and set the marker's details
